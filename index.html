@@ -19,7 +19,7 @@
       --bg-page: #f6f6f7;
       --bg-card: #ffffff;
       --bg-subtle: #f2f2f4;
-      --bg-nav: rgba(255, 255, 255, 0.9);
+      --bg-nav: rgba(255, 255, 255, 0.92);
       --text-1: #111113;
       --text-2: #6e6e73;
       --text-3: #9a9aa0;
@@ -32,7 +32,7 @@
       --bg-page: #0c0c0e;
       --bg-card: #161618;
       --bg-subtle: #222226;
-      --bg-nav: rgba(22, 22, 24, 0.9);
+      --bg-nav: rgba(22, 22, 24, 0.92);
       --text-1: #f5f5f7;
       --text-2: #98989f;
       --text-3: #636369;
@@ -50,7 +50,7 @@
       -webkit-font-smoothing: antialiased;
       font-feature-settings: "tnum" 1;
       padding-top: env(safe-area-inset-top);
-      padding-bottom: calc(88px + env(safe-area-inset-bottom));
+      padding-bottom: calc(84px + env(safe-area-inset-bottom));
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
@@ -74,9 +74,14 @@
     }
 
     .chip-idle {
-      background: var(--bg-card);
+      background: var(--bg-subtle);
       color: var(--text-2);
-      border: 1px solid var(--line);
+    }
+
+    .seg-active {
+      background: var(--bg-card);
+      color: var(--text-1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
     .bottom-nav {
@@ -108,51 +113,55 @@
 </head>
 <body class="min-h-screen">
   <div class="max-w-md mx-auto px-4 pt-5">
-    <!-- Minimal Header -->
-    <header class="flex items-center justify-between mb-5 px-0.5">
+    <!-- Clean Header -->
+    <header class="flex items-center justify-between mb-4 px-0.5">
       <div>
         <p id="date-label" class="text-xs font-medium t2"></p>
-        <h1 id="city-header" class="text-xl font-bold tracking-tight mt-0.5">하남</h1>
+        <div class="flex items-center gap-2 mt-0.5">
+          <h1 id="city-header" class="text-xl font-bold tracking-tight">하남</h1>
+          <span id="commute-countdown" class="text-[11px] font-semibold t2 subtle px-2 py-0.5 rounded-full">출발 08:00</span>
+        </div>
       </div>
       <div class="flex items-center gap-1">
-        <button id="refresh-btn" type="button" aria-label="새로고침" class="w-9 h-9 rounded-full flex items-center justify-center t2 hover:opacity-70 active:scale-95 transition">
+        <button id="theme-quick-btn" type="button" aria-label="다크모드" class="w-9 h-9 rounded-full flex items-center justify-center t2 active:scale-95 transition">
+          <i id="theme-quick-icon" data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+        <button id="refresh-btn" type="button" aria-label="새로고침" class="w-9 h-9 rounded-full flex items-center justify-center t2 active:scale-95 transition">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
-        <button id="settings-btn" type="button" aria-label="설정" class="w-9 h-9 rounded-full flex items-center justify-center t2 hover:opacity-70 active:scale-95 transition">
+        <button id="settings-btn" type="button" aria-label="설정" class="w-9 h-9 rounded-full flex items-center justify-center t2 active:scale-95 transition">
           <i data-lucide="settings" class="w-4 h-4"></i>
         </button>
       </div>
     </header>
 
-    <!-- Status Notice -->
-    <div id="status-banner" class="hidden mb-4 px-3.5 py-2.5 rounded-2xl subtle text-xs t2 flex items-center justify-between gap-2">
+    <!-- Status Banner -->
+    <div id="status-banner" class="hidden mb-3.5 px-3.5 py-2.5 rounded-2xl subtle text-xs t2 flex items-center justify-between gap-2">
       <span id="status-banner-text" class="truncate"></span>
       <button id="status-banner-close" type="button" class="font-semibold shrink-0">닫기</button>
     </div>
 
-    <!-- ==================== TAB 1: TODAY ==================== -->
+    <!-- ==================== TAB 1: BRIEFING (ALL-IN-ONE NATURAL FLOW) ==================== -->
     <main id="tab-home" class="space-y-3.5">
-      <!-- 1. Weather & Practical Outfit Card -->
+      <!-- 1. Weather Card (with Inline Expandable 5-Day Forecast) -->
       <section class="card p-5">
-        <div class="flex items-center justify-between text-xs t2 mb-3">
-          <span id="yesterday-diff">실시간</span>
-          <span id="commute-countdown" class="font-semibold">출발 08:00</span>
-        </div>
-
         <div class="flex items-center justify-between">
           <div>
             <div class="flex items-baseline gap-2.5">
               <span id="current-temp" class="text-[52px] leading-none font-bold tracking-tighter">--°</span>
-              <span id="weather-condition" class="text-base font-semibold">불러오는 중</span>
+              <div>
+                <p id="weather-condition" class="text-base font-semibold">불러오는 중</p>
+                <p id="yesterday-diff" class="text-xs t2 mt-0.5">실시간</p>
+              </div>
             </div>
-            <p id="feels-like" class="text-xs t2 mt-2">체감 --° · 최고 --° / 최저 --°</p>
+            <p id="feels-like" class="text-xs t2 mt-2.5">체감 --° · 최고 --° / 최저 --°</p>
           </div>
           <div id="weather-icon-wrap" class="w-12 h-12 rounded-2xl subtle flex items-center justify-center shrink-0">
             <i data-lucide="sun" class="w-6 h-6"></i>
           </div>
         </div>
 
-        <!-- 08시 / 12시 / 18시 Intuitive Strip (Icon + Temp + Droplet Rain Prob) -->
+        <!-- 08시 / 12시 / 18시 Intuitive Strip -->
         <div class="grid grid-cols-3 mt-5 pt-4 border-t hairline text-center">
           <div class="flex flex-col items-center gap-1">
             <span class="text-[11px] t3 font-medium">출근 08시</span>
@@ -183,7 +192,7 @@
           </div>
         </div>
 
-        <!-- Detailed Practical Outfit, Umbrella & Air Quality Rows -->
+        <!-- Outfit, Umbrella & Air Quality -->
         <div class="mt-4 pt-3.5 border-t hairline space-y-2 text-xs">
           <div class="flex items-start justify-between gap-3">
             <span class="t2 shrink-0 font-medium">옷차림</span>
@@ -194,9 +203,41 @@
             <span id="umbrella-aq-detail" class="font-semibold text-right">--</span>
           </div>
         </div>
+
+        <!-- Inline Expandable Weekly Forecast -->
+        <div class="mt-3.5 pt-3 border-t hairline">
+          <button id="toggle-weekly-btn" type="button" class="w-full flex items-center justify-between text-xs font-semibold t2 active:opacity-70">
+            <span>5일 주간 예보</span>
+            <i id="weekly-chevron" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
+          </button>
+          <div id="weekly-list" class="hidden mt-2 divide-y hairline"></div>
+        </div>
       </section>
 
-      <!-- 2. Market & Stock Snapshot Card (Home) -->
+      <!-- 2. Direct Naver Map App Route Card (Inline Mode Switcher + 1-Tap Launch) -->
+      <section class="card p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="inline-flex p-0.5 rounded-lg subtle text-[11px] font-semibold">
+            <button id="mode-public-btn" type="button" class="seg-active px-2.5 py-1 rounded-md transition">대중교통</button>
+            <button id="mode-car-btn" type="button" class="px-2.5 py-1 rounded-md t2 transition">자동차</button>
+          </div>
+          <button id="open-dest-modal-btn" type="button" class="text-xs font-semibold t2 px-1 py-0.5 active:opacity-60">목적지 변경</button>
+        </div>
+
+        <a
+          id="naver-route-link"
+          href="nmap://route/public?dlat=37.4979&dlng=127.0276&dname=%EA%B0%95%EB%82%A8%EC%97%AD&appname=morning-briefing"
+          class="w-full py-3.5 px-4 rounded-2xl bg-[#03c75a] text-white flex items-center justify-between active:scale-[0.99] transition"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <i data-lucide="navigation" class="w-4 h-4 shrink-0"></i>
+            <span id="route-label" class="text-sm font-bold truncate">현위치 → 강남역 바로 길찾기</span>
+          </div>
+          <i data-lucide="arrow-up-right" class="w-4 h-4 shrink-0"></i>
+        </a>
+      </section>
+
+      <!-- 3. Market & Stock Snapshot Card -->
       <section class="card p-4">
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-sm font-bold">증시 · 시장</h2>
@@ -205,9 +246,7 @@
             <a href="https://m.stock.naver.com/worldstock/index/.IXIC/total" target="_blank" rel="noopener noreferrer" class="hover:opacity-70">미국증시 ↗</a>
           </div>
         </div>
-
-        <!-- Live Market Grid (FX + BTC + Optional Live US ETFs via Finnhub Key) -->
-        <div id="market-grid" class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-3 gap-2">
           <div class="subtle rounded-xl p-2.5">
             <p class="text-[10px] font-semibold t2">원/달러</p>
             <p id="home-fx-usd" class="text-sm font-bold mt-1">--</p>
@@ -224,68 +263,28 @@
             <p id="home-btc-change" class="text-[10px] font-semibold t3 mt-0.5">--</p>
           </div>
         </div>
-
-        <!-- Live US Index ETFs Row (Shown automatically when Finnhub free key is added in Settings) -->
         <div id="stock-quotes-row" class="hidden grid grid-cols-3 gap-2 mt-2"></div>
       </section>
 
-      <!-- 3. Naver Map Direct Commute Route Card -->
+      <!-- 4. 1-Tap Direct News Feed (Inline Categories, No Extra Reader Modal) -->
       <section class="card p-4">
-        <div class="flex items-center justify-between gap-3">
-          <a
-            id="naver-route-link"
-            href="nmap://route/public?dlat=37.4979&dlng=127.0276&dname=%EA%B0%95%EB%82%A8%EC%97%AD&appname=morning-briefing"
-            class="flex items-center gap-3 flex-1 min-w-0 active:opacity-70 transition"
-          >
-            <div class="w-9 h-9 rounded-xl bg-[#03c75a]/12 text-[#03c75a] flex items-center justify-center shrink-0">
-              <i data-lucide="navigation" class="w-4 h-4"></i>
-            </div>
-            <div class="min-w-0 flex-1">
-              <p id="route-mode-label" class="text-xs font-semibold t2">네이버 지도 앱 · 대중교통</p>
-              <p id="route-label" class="text-sm font-bold truncate mt-0.5">현위치 → 강남역</p>
-            </div>
-            <i data-lucide="chevron-right" class="w-4 h-4 t3 shrink-0"></i>
-          </a>
-          <button id="edit-route-btn" type="button" aria-label="경로 수정" class="w-8 h-8 rounded-lg subtle flex items-center justify-center t2 shrink-0 active:scale-95 transition">
-            <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-          </button>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold">뉴스</h2>
+          <span id="keyword-active-badge" class="hidden text-[11px] font-semibold t2"></span>
         </div>
-      </section>
-
-      <!-- 4. Editorial News List -->
-      <section class="card px-5 py-4">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm font-bold">주요 뉴스</h2>
-          <button id="home-more-news-btn" type="button" class="text-xs font-medium t2">더 보기</button>
-        </div>
-        <div id="home-news-preview" class="divide-y hairline"></div>
-      </section>
-    </main>
-
-    <!-- ==================== TAB 2: NEWS ==================== -->
-    <main id="tab-news" class="hidden space-y-3.5">
-      <div id="category-chips" class="flex gap-1.5 overflow-x-auto no-scrollbar"></div>
-      <section class="card px-5 py-2">
+        <div id="category-chips" class="flex gap-1.5 overflow-x-auto no-scrollbar mb-3"></div>
         <div id="news-list" class="divide-y hairline"></div>
       </section>
     </main>
 
-    <!-- ==================== TAB 3: SCHEDULE ==================== -->
-    <main id="tab-life" class="hidden space-y-3.5">
+    <!-- ==================== TAB 2: TASKS & CHECKLIST ==================== -->
+    <main id="tab-tasks" class="hidden space-y-3.5">
       <section class="card p-5">
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-sm font-bold">오늘 할 일</h2>
           <span id="focus-progress" class="text-xs font-medium t2">0/3</span>
         </div>
         <div id="focus-list" class="space-y-2"></div>
-      </section>
-
-      <section class="card p-5">
-        <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm font-bold">주간 예보</h2>
-          <span id="weekly-city-badge" class="text-xs t2">하남</span>
-        </div>
-        <div id="weekly-list" class="divide-y hairline"></div>
       </section>
 
       <section class="card p-5">
@@ -302,52 +301,48 @@
     </main>
   </div>
 
-  <!-- Minimal 3-Tab Bottom Navigation -->
+  <!-- Clean 2-Tab Bottom Navigation -->
   <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30">
-    <div class="max-w-md mx-auto grid grid-cols-3 h-14">
+    <div class="max-w-md mx-auto grid grid-cols-2 h-14">
       <button type="button" data-tab="home" class="tab-btn flex flex-col items-center justify-center gap-0.5 font-semibold">
         <i data-lucide="sun" class="w-4 h-4"></i>
-        <span class="text-[10px]">오늘</span>
+        <span class="text-[11px]">브리핑</span>
       </button>
-      <button type="button" data-tab="news" class="tab-btn flex flex-col items-center justify-center gap-0.5 t3 font-medium">
-        <i data-lucide="newspaper" class="w-4 h-4"></i>
-        <span class="text-[10px]">뉴스</span>
-      </button>
-      <button type="button" data-tab="life" class="tab-btn flex flex-col items-center justify-center gap-0.5 t3 font-medium">
+      <button type="button" data-tab="tasks" class="tab-btn flex flex-col items-center justify-center gap-0.5 t3 font-medium">
         <i data-lucide="check-square" class="w-4 h-4"></i>
-        <span class="text-[10px]">일정</span>
+        <span class="text-[11px]">할 일</span>
       </button>
     </div>
   </nav>
 
-  <!-- Quick Reader Bottom Sheet -->
-  <div id="reader-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/45 backdrop-blur-xs p-0 sm:p-4">
-    <div class="modal-sheet w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 max-h-[82vh] overflow-y-auto">
+  <!-- Dedicated Destination Search Modal (Geocodes ANY Korean Address -> Exact Coordinates -> Direct Route!) -->
+  <div id="dest-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/45 backdrop-blur-xs p-0 sm:p-4">
+    <div class="modal-sheet w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 max-h-[85vh] overflow-y-auto">
       <div class="w-9 h-1 rounded-full bg-zinc-400/35 mx-auto mb-4 sm:hidden"></div>
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2 text-xs t2">
-          <span id="reader-source" class="font-semibold">언론사</span>
-          <span>·</span>
-          <span id="reader-time">방금 전</span>
-        </div>
-        <button id="reader-close-btn" type="button" class="text-xs font-medium t2 px-2 py-1">닫기</button>
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold">출근 목적지 검색</h3>
+        <button id="dest-close-btn" type="button" class="text-sm font-semibold px-2 py-1">닫기</button>
       </div>
-      <h3 id="reader-title" class="text-base font-bold leading-snug mb-3"></h3>
-      <p id="reader-summary" class="text-sm t2 leading-relaxed mb-6"></p>
-      <div class="flex items-center gap-2">
-        <a id="reader-direct-link" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 py-3 px-4 rounded-xl chip-active text-sm font-semibold text-center active:opacity-80 transition">
-          원문 열기 ↗
-        </a>
-        <button id="reader-bookmark-btn" type="button" aria-label="북마크" class="subtle w-11 h-11 rounded-xl flex items-center justify-center active:scale-95 transition">
-          <i id="reader-bookmark-icon" data-lucide="bookmark" class="w-4 h-4"></i>
-        </button>
+
+      <div class="flex gap-2 mb-3">
+        <input id="dest-search-input" type="text" maxlength="40" placeholder="역 이름·도로명 주소·건물명 검색" class="input-box flex-1 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none" />
+        <button id="dest-search-btn" type="button" class="px-4 py-2.5 rounded-xl chip-active text-xs font-semibold active:scale-95 transition">검색</button>
+      </div>
+
+      <!-- Search Results List -->
+      <div id="dest-search-results" class="hidden mb-4 divide-y hairline card px-3.5 py-1"></div>
+
+      <!-- Quick Presets -->
+      <div>
+        <p class="text-[11px] font-semibold t2 mb-2">주요 업무지구</p>
+        <div id="dest-preset-chips" class="flex flex-wrap gap-1.5"></div>
       </div>
     </div>
   </div>
 
   <!-- Settings Modal -->
   <div id="settings-modal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center bg-black/45 backdrop-blur-xs p-0 sm:p-4">
-    <div class="modal-sheet w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 max-h-[86vh] overflow-y-auto">
+    <div class="modal-sheet w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 max-h-[85vh] overflow-y-auto">
       <div class="w-9 h-1 rounded-full bg-zinc-400/35 mx-auto mb-4 sm:hidden"></div>
       <div class="flex items-center justify-between mb-5">
         <h3 class="text-base font-bold">설정</h3>
@@ -355,54 +350,12 @@
       </div>
 
       <div class="space-y-5 text-sm">
-        <!-- Naver Map App Commute Route -->
-        <div class="space-y-2">
-          <label class="block text-xs font-semibold t2">네이버 지도 앱 출근지</label>
-          <div class="grid grid-cols-2 gap-2">
-            <select id="route-mode-select" aria-label="이동 수단" class="input-box rounded-xl px-3 py-2.5 text-xs font-semibold focus:outline-none">
-              <option value="public">대중교통</option>
-              <option value="car">자동차</option>
-            </select>
-            <select id="route-preset-select" aria-label="주요 출근지" class="input-box rounded-xl px-3 py-2.5 text-xs font-semibold focus:outline-none">
-              <option value="gangnam">강남역</option>
-              <option value="pangyo">판교역</option>
-              <option value="yeouido">여의도역</option>
-              <option value="gwanghwamun">광화문</option>
-              <option value="jamsil">잠실역</option>
-              <option value="seoulstn">서울역</option>
-              <option value="custom">직접 입력</option>
-            </select>
-          </div>
-          <div id="custom-dest-wrap" class="hidden grid grid-cols-2 gap-2">
-            <input id="route-origin-input" type="text" maxlength="30" placeholder="출발지 (비우면 현위치)" class="input-box rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none" />
-            <input id="route-dest-input" type="text" maxlength="30" placeholder="도착지명 (예: 구로디지털단지)" class="input-box rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none" />
-          </div>
-          <button id="save-route-btn" type="button" class="w-full py-2.5 rounded-xl chip-active text-xs font-semibold active:scale-[0.99] transition">출근지 저장</button>
-        </div>
-
-        <!-- Departure Time -->
         <div>
           <label for="depart-time-input" class="block text-xs font-semibold t2 mb-2">출발 시각</label>
           <input id="depart-time-input" type="time" value="08:00" class="input-box w-full rounded-xl px-3.5 py-2.5 text-sm font-semibold focus:outline-none" />
         </div>
 
-        <!-- Optional Finnhub Key for Live US Stock Quotes (SPY, QQQ, NVDA) -->
-        <div>
-          <label for="finnhub-key-input" class="block text-xs font-semibold t2 mb-2">미국 증시 실시간 키 (Finnhub 무료 키, 선택)</label>
-          <div class="flex gap-2">
-            <input id="finnhub-key-input" type="password" maxlength="80" placeholder="SPY · QQQ · NVDA 시세 연동" class="input-box flex-1 rounded-xl px-3 py-2 text-xs focus:outline-none" />
-            <button id="save-finnhub-btn" type="button" class="px-3.5 py-2 rounded-xl chip-active text-xs font-semibold">저장</button>
-          </div>
-        </div>
-
-        <!-- Theme & GPS Toggles -->
         <div class="space-y-2">
-          <div class="subtle flex items-center justify-between rounded-xl px-4 py-3">
-            <span class="text-xs font-semibold">다크 모드</span>
-            <button id="theme-toggle-btn" type="button" role="switch" aria-checked="false" class="w-11 h-6 rounded-full bg-zinc-400 relative transition-colors">
-              <span id="theme-toggle-knob" class="block w-4 h-4 bg-white rounded-full shadow transform translate-x-1 transition-transform"></span>
-            </button>
-          </div>
           <div class="subtle flex items-center justify-between rounded-xl px-4 py-3">
             <span class="text-xs font-semibold">현재 위치 (GPS)</span>
             <button id="gps-toggle-btn" type="button" role="switch" aria-checked="false" class="w-11 h-6 rounded-full bg-zinc-400 relative transition-colors">
@@ -414,7 +367,14 @@
           </div>
         </div>
 
-        <!-- Keyword Filter -->
+        <div>
+          <label for="finnhub-key-input" class="block text-xs font-semibold t2 mb-2">미국 증시 실시간 키 (Finnhub)</label>
+          <div class="flex gap-2">
+            <input id="finnhub-key-input" type="password" maxlength="80" placeholder="SPY · QQQ · NVDA" class="input-box flex-1 rounded-xl px-3 py-2 text-xs focus:outline-none" />
+            <button id="save-finnhub-btn" type="button" class="px-3.5 py-2 rounded-xl chip-active text-xs font-semibold">저장</button>
+          </div>
+        </div>
+
         <div>
           <label for="custom-keyword-input" class="block text-xs font-semibold t2 mb-2">뉴스 키워드</label>
           <div class="flex gap-2">
@@ -423,9 +383,8 @@
           </div>
         </div>
 
-        <!-- Reset -->
         <div class="pt-4 border-t hairline flex items-center justify-between">
-          <span id="security-stats" class="text-[11px] t3">HTTPS · XSS 차단 활성</span>
+          <span id="security-stats" class="text-[11px] t3">HTTPS 검증</span>
           <button id="reset-settings-btn" type="button" class="text-xs font-semibold text-rose-500">초기화</button>
         </div>
       </div>
@@ -448,7 +407,8 @@
         'api.frankfurter.dev',
         'api.binance.com',
         'finnhub.io',
-        'api.rss2json.com'
+        'api.rss2json.com',
+        'nominatim.openstreetmap.org'
       ]);
 
       const Security = {
@@ -501,7 +461,7 @@
           return Number.isFinite(lat) && Number.isFinite(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
         },
 
-        sanitizeTextInput(raw, maxLen = 30) {
+        sanitizeTextInput(raw, maxLen = 40) {
           if (typeof raw !== 'string') return '';
           let out = '';
           for (let i = 0; i < raw.length && out.length < maxLen; i += 1) {
@@ -511,7 +471,7 @@
           return out.trim();
         },
 
-        stripHTMLSafely(raw, maxLen = 360) {
+        stripHTMLSafely(raw, maxLen = 200) {
           if (typeof raw !== 'string') return '';
           let out = '';
           let inTag = false;
@@ -625,6 +585,16 @@
         { id: 'jeju', name: '제주', lat: 33.4996, lon: 126.5312 }
       ];
 
+      const DEST_PRESETS = [
+        { name: '강남역', lat: 37.4979, lng: 127.0276 },
+        { name: '판교역', lat: 37.3948, lng: 127.1112 },
+        { name: '여의도역', lat: 37.5216, lng: 126.9242 },
+        { name: '광화문', lat: 37.5716, lng: 126.9769 },
+        { name: '잠실역', lat: 37.5133, lng: 127.1001 },
+        { name: '성수역', lat: 37.5446, lng: 127.0560 },
+        { name: '서울역', lat: 37.5547, lng: 126.9707 }
+      ];
+
       const NEWS_CATEGORIES = [
         { id: 'hk-econ', label: '경제', source: '한국경제', rss: 'https://www.hankyung.com/feed/economy' },
         { id: 'sbs-top', label: '주요', source: 'SBS', rss: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=01&plink=RSSREADER' },
@@ -646,27 +616,17 @@
         { id: 'f3', text: '내일 일정 정리', done: false }
       ];
 
-      const DEST_PRESETS = {
-        gangnam: { name: '강남역', lat: 37.4979, lng: 127.0276 },
-        pangyo: { name: '판교역', lat: 37.3948, lng: 127.1112 },
-        yeouido: { name: '여의도역', lat: 37.5216, lng: 126.9242 },
-        gwanghwamun: { name: '광화문', lat: 37.5716, lng: 126.9769 },
-        jamsil: { name: '잠실역', lat: 37.5133, lng: 127.1001 },
-        seoulstn: { name: '서울역', lat: 37.5547, lng: 126.9707 }
-      };
-
-      const STORAGE_KEY = 'morning_briefing_minimal_v8';
+      const STORAGE_KEY = 'morning_briefing_ux_v9';
 
       const state = {
         activeTab: 'home',
+        weeklyOpen: false,
         city: CITY_PRESETS[0],
         useGPS: false,
         darkMode: false,
         departTime: '08:00',
         routeMode: 'public',
-        routePreset: 'gangnam',
-        routeOrigin: '',
-        routeDest: '강남역',
+        dest: { name: '강남역', lat: 37.4979, lng: 127.0276 },
         finnhubKey: '',
         categoryId: 'hk-econ',
         keywordFilter: '',
@@ -679,8 +639,7 @@
         news: [],
         bookmarks: [],
         checklist: DEFAULT_CHECKLIST.map((x) => ({ ...x })),
-        focusItems: DEFAULT_FOCUS.map((x) => ({ ...x })),
-        activeArticle: null
+        focusItems: DEFAULT_FOCUS.map((x) => ({ ...x }))
       };
 
       function loadPrefs() {
@@ -693,9 +652,13 @@
           if (typeof saved.darkMode === 'boolean') state.darkMode = saved.darkMode;
           if (typeof saved.departTime === 'string' && /^\d{2}:\d{2}$/.test(saved.departTime)) state.departTime = saved.departTime;
           if (saved.routeMode === 'public' || saved.routeMode === 'car') state.routeMode = saved.routeMode;
-          if (typeof saved.routePreset === 'string' && (saved.routePreset === 'custom' || DEST_PRESETS[saved.routePreset])) state.routePreset = saved.routePreset;
-          if (typeof saved.routeOrigin === 'string') state.routeOrigin = Security.sanitizeTextInput(saved.routeOrigin, 30);
-          if (typeof saved.routeDest === 'string') state.routeDest = Security.sanitizeTextInput(saved.routeDest, 30) || '강남역';
+          if (saved.dest && Security.isValidCoordinate(Number(saved.dest.lat), Number(saved.dest.lng))) {
+            state.dest = {
+              name: Security.sanitizeTextInput(String(saved.dest.name || '강남역'), 30) || '강남역',
+              lat: Number(saved.dest.lat),
+              lng: Number(saved.dest.lng)
+            };
+          }
           if (typeof saved.finnhubKey === 'string') state.finnhubKey = Security.sanitizeTextInput(saved.finnhubKey, 80);
           if (typeof saved.categoryId === 'string' && NEWS_CATEGORIES.some((c) => c.id === saved.categoryId)) state.categoryId = saved.categoryId;
           if (typeof saved.keywordFilter === 'string') state.keywordFilter = Security.sanitizeTextInput(saved.keywordFilter, 20);
@@ -735,9 +698,7 @@
             darkMode: state.darkMode,
             departTime: state.departTime,
             routeMode: state.routeMode,
-            routePreset: state.routePreset,
-            routeOrigin: state.routeOrigin,
-            routeDest: state.routeDest,
+            dest: state.dest,
             finnhubKey: state.finnhubKey,
             categoryId: state.categoryId,
             keywordFilter: state.keywordFilter,
@@ -778,7 +739,6 @@
         else if (temp < 19) base = '가디건 · 얇은 자켓';
         else if (temp < 24) base = '셔츠 · 긴팔 티셔츠';
         else base = '반팔 · 얇은 린넨 셔츠';
-
         if (gap >= 10) return `${base} (일교차 ${gap}° · 겉옷 필수)`;
         return base;
       }
@@ -803,16 +763,14 @@
         return `${d.getMonth() + 1}/${d.getDate()}(${names[d.getDay()]})`;
       }
 
-      function buildNaverMapAppURL() {
+      // Exact coordinate-based Naver Map App direct route (opens straight into route screen!)
+      function buildNaverDirectRouteURL() {
         const appName = encodeURIComponent(window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'morning-briefing');
-        const preset = DEST_PRESETS[state.routePreset];
-        if (preset) {
-          const action = state.routeMode === 'car' ? 'car' : 'public';
-          const dname = encodeURIComponent(preset.name);
-          return `nmap://route/${action}?dlat=${preset.lat}&dlng=${preset.lng}&dname=${dname}&appname=${appName}`;
-        }
-        const q = encodeURIComponent(state.routeDest || '강남역');
-        return `nmap://search?query=${q}&appname=${appName}`;
+        const action = state.routeMode === 'car' ? 'car' : 'public';
+        const dlat = state.dest.lat.toFixed(6);
+        const dlng = state.dest.lng.toFixed(6);
+        const dname = encodeURIComponent(state.dest.name);
+        return `nmap://route/${action}?dlat=${dlat}&dlng=${dlng}&dname=${dname}&appname=${appName}`;
       }
 
       // ============================================================
@@ -832,6 +790,28 @@
             { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
           );
         });
+      }
+
+      async function searchKoreanPlace(query) {
+        const clean = Security.sanitizeTextInput(query, 40);
+        if (!clean) return [];
+        const params = new URLSearchParams({
+          format: 'jsonv2',
+          countrycodes: 'kr',
+          'accept-language': 'ko',
+          limit: '5',
+          q: clean
+        });
+        const list = await Security.fetchValidatedJSON(`https://nominatim.openstreetmap.org/search?${params.toString()}`);
+        if (!Array.isArray(list)) return [];
+        return list.map((item) => {
+          const lat = Number(item.lat);
+          const lng = Number(item.lon);
+          if (!Security.isValidCoordinate(lat, lng)) return null;
+          const shortName = Security.sanitizeTextInput(String(item.name || clean), 30) || clean;
+          const fullAddr = Security.sanitizeTextInput(String(item.display_name || ''), 80);
+          return { name: shortName, address: fullAddr, lat, lng };
+        }).filter(Boolean);
       }
 
       async function fetchWeather(city) {
@@ -971,11 +951,9 @@
         const items = Array.isArray(data.items) ? data.items.slice(0, 15) : [];
         return items.map((item) => {
           const title = Security.stripHTMLSafely(item.title || '', 160);
-          const summary = Security.stripHTMLSafely(item.description || '', 340);
           const safeUrl = Security.validatedExternalURL(item.link || '');
           return {
             title: title || '제목 없음',
-            summary: summary && summary !== title ? summary : '',
             source: cat.source,
             safeUrl,
             pubDate: item.pubDate || ''
@@ -1006,20 +984,23 @@
       function applyTheme() {
         const root = document.documentElement;
         const themeMeta = document.getElementById('theme-color-meta');
+        const icon = document.getElementById('theme-quick-icon');
         if (state.darkMode) {
           root.classList.add('dark');
           if (themeMeta) themeMeta.setAttribute('content', '#0c0c0e');
+          if (icon) icon.setAttribute('data-lucide', 'sun');
         } else {
           root.classList.remove('dark');
           if (themeMeta) themeMeta.setAttribute('content', '#f6f6f7');
+          if (icon) icon.setAttribute('data-lucide', 'moon');
         }
+        if (window.lucide) window.lucide.createIcons();
       }
 
       function switchTab(tabName) {
         state.activeTab = tabName;
-        for (const t of ['home', 'news', 'life']) {
-          document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tabName);
-        }
+        document.getElementById('tab-home').classList.toggle('hidden', tabName !== 'home');
+        document.getElementById('tab-tasks').classList.toggle('hidden', tabName !== 'tasks');
         document.querySelectorAll('.tab-btn').forEach((btn) => {
           const active = btn.getAttribute('data-tab') === tabName;
           btn.classList.toggle('font-semibold', active);
@@ -1030,13 +1011,16 @@
       }
 
       function renderRouteCard() {
-        const modeText = state.routeMode === 'car' ? '자동차' : '대중교통';
-        const preset = DEST_PRESETS[state.routePreset];
-        const destName = preset ? preset.name : (state.routeDest || '강남역');
-        const originName = state.routeOrigin || '현위치';
-        document.getElementById('route-mode-label').textContent = preset ? `네이버 지도 앱 · ${modeText}` : '네이버 지도 앱 · 검색';
-        document.getElementById('route-label').textContent = `${originName} → ${destName}`;
-        document.getElementById('naver-route-link').href = buildNaverMapAppURL();
+        const isCar = state.routeMode === 'car';
+        const pubBtn = document.getElementById('mode-public-btn');
+        const carBtn = document.getElementById('mode-car-btn');
+        pubBtn.classList.toggle('seg-active', !isCar);
+        pubBtn.classList.toggle('t2', isCar);
+        carBtn.classList.toggle('seg-active', isCar);
+        carBtn.classList.toggle('t2', !isCar);
+
+        document.getElementById('route-label').textContent = `현위치 → ${state.dest.name} 바로 길찾기`;
+        document.getElementById('naver-route-link').href = buildNaverDirectRouteURL();
       }
 
       function renderCommuteCountdown() {
@@ -1081,7 +1065,7 @@
           );
           if (maxRain >= 50) parts.push(`우산 필수 (${maxRain}%)`);
           else if (maxRain >= 30) parts.push(`접이식 우산 추천 (${maxRain}%)`);
-          else parts.push(`우산 불필요`);
+          else parts.push('우산 불필요');
         }
         if (aq) {
           const grade = aq.pm25 <= 15 ? '좋음' : (aq.pm25 <= 35 ? '보통' : '나쁨·마스크 권장');
@@ -1094,9 +1078,7 @@
         const w = state.weather;
         if (!w) return;
         const info = wmoInfo(w.weatherCode);
-
         document.getElementById('city-header').textContent = w.cityName;
-        document.getElementById('weekly-city-badge').textContent = w.cityName;
 
         const diffEl = document.getElementById('yesterday-diff');
         if (w.tempDiffYesterday === null) diffEl.textContent = '실시간';
@@ -1217,7 +1199,6 @@
         } else {
           state.bookmarks.unshift({
             title: article.title,
-            summary: article.summary,
             source: article.source,
             safeUrl: article.safeUrl,
             pubDate: article.pubDate
@@ -1225,63 +1206,8 @@
           showToast('북마크 저장');
         }
         savePrefs();
-        updateReaderBookmarkUI();
-        if (state.categoryId === 'saved') renderNews();
-      }
-
-      function updateReaderBookmarkUI() {
-        const icon = document.getElementById('reader-bookmark-icon');
-        if (!icon || !state.activeArticle) return;
-        icon.classList.toggle('fill-current', isBookmarked(state.activeArticle));
-      }
-
-      function openQuickReader(article) {
-        state.activeArticle = article;
-        document.getElementById('reader-source').textContent = article.source || '뉴스';
-        document.getElementById('reader-time').textContent = formatRelativeTime(article.pubDate);
-        document.getElementById('reader-title').textContent = article.title;
-        const sumEl = document.getElementById('reader-summary');
-        sumEl.textContent = article.summary || '';
-        sumEl.classList.toggle('hidden', !article.summary);
-
-        const directLink = document.getElementById('reader-direct-link');
-        if (article.safeUrl) {
-          directLink.href = article.safeUrl;
-          directLink.classList.remove('opacity-40', 'pointer-events-none');
-        } else {
-          directLink.removeAttribute('href');
-          directLink.classList.add('opacity-40', 'pointer-events-none');
-        }
-
-        updateReaderBookmarkUI();
-        const modal = document.getElementById('reader-modal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        if (window.lucide) window.lucide.createIcons();
-      }
-
-      function closeQuickReader() {
-        const modal = document.getElementById('reader-modal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-
-      function createNewsRow(item) {
-        const row = document.createElement('button');
-        row.type = 'button';
-        row.className = 'w-full text-left py-3.5 first:pt-2 last:pb-2 active:opacity-60 transition block';
-        row.addEventListener('click', () => openQuickReader(item));
-
-        const meta = document.createElement('div');
-        meta.className = 'flex items-center gap-1.5 text-[11px] t3 mb-1';
-        meta.textContent = `${item.source || '뉴스'} · ${formatRelativeTime(item.pubDate)}`;
-
-        const title = document.createElement('h3');
-        title.className = 'text-[14px] font-semibold leading-snug line-clamp-2';
-        title.textContent = item.title;
-
-        row.append(meta, title);
-        return row;
+        renderCategoryChips();
+        renderNews();
       }
 
       function renderCategoryChips() {
@@ -1291,7 +1217,7 @@
           const btn = document.createElement('button');
           btn.type = 'button';
           const active = state.categoryId === cat.id;
-          btn.className = `shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition ${active ? 'chip-active' : 'chip-idle'}`;
+          btn.className = `shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition ${active ? 'chip-active' : 'chip-idle'}`;
           btn.textContent = cat.id === 'saved' && state.bookmarks.length > 0 ? `북마크 ${state.bookmarks.length}` : cat.label;
           btn.addEventListener('click', () => {
             if (state.categoryId === cat.id) return;
@@ -1305,36 +1231,69 @@
         }
       }
 
+      // 1-Tap Direct Open News Row + Inline Bookmark Button
       function renderNews() {
-        const fullContainer = document.getElementById('news-list');
-        const homePreview = document.getElementById('home-news-preview');
-        fullContainer.replaceChildren();
-        homePreview.replaceChildren();
+        const container = document.getElementById('news-list');
+        container.replaceChildren();
+
+        const badge = document.getElementById('keyword-active-badge');
+        if (state.keywordFilter) {
+          badge.textContent = `#${state.keywordFilter}`;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
 
         const sourceList = state.categoryId === 'saved' ? state.bookmarks : state.news;
         const filter = state.keywordFilter.toLowerCase();
         const filtered = filter
-          ? sourceList.filter((n) => n.title.toLowerCase().includes(filter) || (n.summary || '').toLowerCase().includes(filter))
+          ? sourceList.filter((n) => n.title.toLowerCase().includes(filter))
           : sourceList;
 
         if (filtered.length === 0) {
           const empty = document.createElement('div');
           empty.className = 'py-6 text-center text-xs t3';
           empty.textContent = state.categoryId === 'saved' ? '저장한 기사가 없습니다.' : '기사가 없습니다.';
-          fullContainer.appendChild(empty);
-        } else {
-          for (const item of filtered.slice(0, 12)) fullContainer.appendChild(createNewsRow(item));
+          container.appendChild(empty);
+          return;
         }
 
-        const homeItems = state.news.slice(0, 5);
-        if (homeItems.length === 0) {
-          const empty = document.createElement('div');
-          empty.className = 'py-5 text-center text-xs t3';
-          empty.textContent = '기사를 불러오는 중입니다.';
-          homePreview.appendChild(empty);
-        } else {
-          for (const item of homeItems) homePreview.appendChild(createNewsRow(item));
+        for (const item of filtered.slice(0, 10)) {
+          const row = document.createElement('div');
+          row.className = 'py-3 first:pt-1 last:pb-1 flex items-start justify-between gap-3';
+
+          const linkEl = item.safeUrl ? document.createElement('a') : document.createElement('div');
+          if (item.safeUrl) {
+            linkEl.href = item.safeUrl;
+            linkEl.target = '_blank';
+            linkEl.rel = 'noopener noreferrer';
+          }
+          linkEl.className = 'flex-1 min-w-0 active:opacity-60 transition';
+
+          const meta = document.createElement('p');
+          meta.className = 'text-[11px] t3 mb-1';
+          meta.textContent = `${item.source || '뉴스'} · ${formatRelativeTime(item.pubDate)}`;
+
+          const title = document.createElement('h3');
+          title.className = 'text-[14px] font-semibold leading-snug line-clamp-2';
+          title.textContent = item.title;
+
+          linkEl.append(meta, title);
+
+          const bmBtn = document.createElement('button');
+          bmBtn.type = 'button';
+          bmBtn.setAttribute('aria-label', '북마크');
+          bmBtn.className = 'w-8 h-8 rounded-lg flex items-center justify-center t3 shrink-0 mt-1 active:scale-90 transition';
+          bmBtn.addEventListener('click', () => toggleBookmark(item));
+          const bmIcon = document.createElement('i');
+          bmIcon.setAttribute('data-lucide', 'bookmark');
+          bmIcon.className = isBookmarked(item) ? 'w-4 h-4 fill-current text-blue-500' : 'w-4 h-4';
+          bmBtn.appendChild(bmIcon);
+
+          row.append(linkEl, bmBtn);
+          container.appendChild(row);
         }
+        if (window.lucide) window.lucide.createIcons();
       }
 
       function renderWorkFocus() {
@@ -1424,19 +1383,17 @@
       }
 
       function renderLoadingSkeletons() {
-        for (const id of ['news-list', 'home-news-preview']) {
-          const el = document.getElementById(id);
-          el.replaceChildren();
-          for (let i = 0; i < 3; i += 1) {
-            const sk = document.createElement('div');
-            sk.className = 'py-3.5 space-y-2 skeleton';
-            const l1 = document.createElement('div');
-            l1.className = 'h-2.5 bg-zinc-400/20 rounded w-1/4';
-            const l2 = document.createElement('div');
-            l2.className = 'h-3.5 bg-zinc-400/25 rounded w-11/12';
-            sk.append(l1, l2);
-            el.appendChild(sk);
-          }
+        const el = document.getElementById('news-list');
+        el.replaceChildren();
+        for (let i = 0; i < 4; i += 1) {
+          const sk = document.createElement('div');
+          sk.className = 'py-3 space-y-2 skeleton';
+          const l1 = document.createElement('div');
+          l1.className = 'h-2.5 bg-zinc-400/20 rounded w-1/4';
+          const l2 = document.createElement('div');
+          l2.className = 'h-3.5 bg-zinc-400/25 rounded w-11/12';
+          sk.append(l1, l2);
+          el.appendChild(sk);
         }
       }
 
@@ -1499,21 +1456,104 @@
       }
 
       // ============================================================
-      // 8. Controls Wiring
+      // 8. Destination Search & Controls Wiring
       // ============================================================
+      function openDestModal() {
+        const modal = document.getElementById('dest-modal');
+        document.getElementById('dest-search-input').value = '';
+        const resBox = document.getElementById('dest-search-results');
+        resBox.replaceChildren();
+        resBox.classList.add('hidden');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeDestModal() {
+        const modal = document.getElementById('dest-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      function selectDestination(place) {
+        state.dest = { name: place.name, lat: place.lat, lng: place.lng };
+        savePrefs();
+        renderRouteCard();
+        closeDestModal();
+        showToast(`${place.name} 저장됨`);
+      }
+
+      function renderDestPresets() {
+        const container = document.getElementById('dest-preset-chips');
+        container.replaceChildren();
+        for (const p of DEST_PRESETS) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const active = state.dest.name === p.name;
+          btn.className = `px-3 py-1.5 rounded-full text-xs font-semibold transition ${active ? 'chip-active' : 'chip-idle'}`;
+          btn.textContent = p.name;
+          btn.addEventListener('click', () => selectDestination(p));
+          container.appendChild(btn);
+        }
+      }
+
+      async function handleDestSearch() {
+        const input = document.getElementById('dest-search-input');
+        const q = Security.sanitizeTextInput(input.value, 40);
+        if (!q) return;
+
+        const resBox = document.getElementById('dest-search-results');
+        resBox.replaceChildren();
+        resBox.classList.remove('hidden');
+        const loading = document.createElement('div');
+        loading.className = 'py-3 text-xs t2 text-center';
+        loading.textContent = '주소 검색 중...';
+        resBox.appendChild(loading);
+
+        try {
+          const places = await searchKoreanPlace(q);
+          resBox.replaceChildren();
+          if (places.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'py-3 text-xs t3 text-center';
+            empty.textContent = '일치하는 장소가 없습니다. 역 이름이나 도로명 주소로 검색해 보세요.';
+            resBox.appendChild(empty);
+            return;
+          }
+          for (const place of places) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'w-full text-left py-2.5 active:opacity-60 block';
+            btn.addEventListener('click', () => selectDestination(place));
+
+            const nameEl = document.createElement('p');
+            nameEl.className = 'text-xs font-bold';
+            nameEl.textContent = place.name;
+
+            const addrEl = document.createElement('p');
+            addrEl.className = 'text-[11px] t3 truncate mt-0.5';
+            addrEl.textContent = place.address;
+
+            btn.append(nameEl, addrEl);
+            resBox.appendChild(btn);
+          }
+        } catch (_) {
+          resBox.replaceChildren();
+          const err = document.createElement('div');
+          err.className = 'py-3 text-xs t3 text-center';
+          err.textContent = '검색에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+          resBox.appendChild(err);
+        }
+      }
+
       function syncSettingsUI() {
-        const setToggle = (btnId, knobId, on) => {
-          const btn = document.getElementById(btnId);
-          const knob = document.getElementById(knobId);
-          btn.setAttribute('aria-checked', String(on));
-          btn.classList.toggle('bg-zinc-900', on && !state.darkMode);
-          btn.classList.toggle('bg-blue-500', on && state.darkMode);
-          btn.classList.toggle('bg-zinc-400', !on);
-          knob.classList.toggle('translate-x-6', on);
-          knob.classList.toggle('translate-x-1', !on);
-        };
-        setToggle('theme-toggle-btn', 'theme-toggle-knob', state.darkMode);
-        setToggle('gps-toggle-btn', 'gps-toggle-knob', state.useGPS);
+        const btn = document.getElementById('gps-toggle-btn');
+        const knob = document.getElementById('gps-toggle-knob');
+        btn.setAttribute('aria-checked', String(state.useGPS));
+        btn.classList.toggle('bg-zinc-900', state.useGPS && !state.darkMode);
+        btn.classList.toggle('bg-blue-500', state.useGPS && state.darkMode);
+        btn.classList.toggle('bg-zinc-400', !state.useGPS);
+        knob.classList.toggle('translate-x-6', state.useGPS);
+        knob.classList.toggle('translate-x-1', !state.useGPS);
 
         const manualWrap = document.getElementById('manual-city-wrap');
         manualWrap.classList.toggle('opacity-40', state.useGPS);
@@ -1524,26 +1564,8 @@
         select.value = exists ? state.city.id : CITY_PRESETS[0].id;
         document.getElementById('custom-keyword-input').value = state.keywordFilter;
         document.getElementById('depart-time-input').value = state.departTime;
-        document.getElementById('route-mode-select').value = state.routeMode;
-        document.getElementById('route-preset-select').value = state.routePreset;
-        document.getElementById('custom-dest-wrap').classList.toggle('hidden', state.routePreset !== 'custom');
-        document.getElementById('route-origin-input').value = state.routeOrigin;
-        document.getElementById('route-dest-input').value = state.routeDest;
         document.getElementById('finnhub-key-input').value = state.finnhubKey;
         document.getElementById('security-stats').textContent = `HTTPS 검증 · 차단 ${Security.blockedLinksCount}건`;
-      }
-
-      function openSettings() {
-        syncSettingsUI();
-        const modal = document.getElementById('settings-modal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-      }
-
-      function closeSettings() {
-        const modal = document.getElementById('settings-modal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
       }
 
       function initControls() {
@@ -1559,12 +1581,45 @@
         document.querySelectorAll('.tab-btn').forEach((btn) => {
           btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
         });
-        document.getElementById('home-more-news-btn').addEventListener('click', () => switchTab('news'));
-        document.getElementById('edit-route-btn').addEventListener('click', openSettings);
-        document.getElementById('settings-btn').addEventListener('click', openSettings);
-        document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
-        document.getElementById('settings-modal').addEventListener('click', (e) => {
-          if (e.target.id === 'settings-modal') closeSettings();
+
+        // Inline Weekly Forecast Expand/Collapse
+        document.getElementById('toggle-weekly-btn').addEventListener('click', () => {
+          state.weeklyOpen = !state.weeklyOpen;
+          document.getElementById('weekly-list').classList.toggle('hidden', !state.weeklyOpen);
+          document.getElementById('weekly-chevron').classList.toggle('rotate-180', state.weeklyOpen);
+        });
+
+        // Inline Public / Car Mode Switcher
+        document.getElementById('mode-public-btn').addEventListener('click', () => {
+          state.routeMode = 'public';
+          savePrefs();
+          renderRouteCard();
+        });
+        document.getElementById('mode-car-btn').addEventListener('click', () => {
+          state.routeMode = 'car';
+          savePrefs();
+          renderRouteCard();
+        });
+
+        // Destination Search Modal
+        document.getElementById('open-dest-modal-btn').addEventListener('click', () => {
+          renderDestPresets();
+          openDestModal();
+        });
+        document.getElementById('dest-close-btn').addEventListener('click', closeDestModal);
+        document.getElementById('dest-modal').addEventListener('click', (e) => {
+          if (e.target.id === 'dest-modal') closeDestModal();
+        });
+        document.getElementById('dest-search-btn').addEventListener('click', handleDestSearch);
+        document.getElementById('dest-search-input').addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') handleDestSearch();
+        });
+
+        // Quick Theme Toggle in Header
+        document.getElementById('theme-quick-btn').addEventListener('click', () => {
+          state.darkMode = !state.darkMode;
+          savePrefs();
+          applyTheme();
         });
 
         document.getElementById('refresh-btn').addEventListener('click', () => {
@@ -1573,35 +1628,22 @@
         });
         document.getElementById('status-banner-close').addEventListener('click', hideBanner);
 
-        const readerModal = document.getElementById('reader-modal');
-        document.getElementById('reader-close-btn').addEventListener('click', closeQuickReader);
-        readerModal.addEventListener('click', (e) => { if (e.target === readerModal) closeQuickReader(); });
-        document.getElementById('reader-bookmark-btn').addEventListener('click', () => {
-          if (state.activeArticle) toggleBookmark(state.activeArticle);
+        // Settings Modal
+        const settingsModal = document.getElementById('settings-modal');
+        document.getElementById('settings-btn').addEventListener('click', () => {
+          syncSettingsUI();
+          settingsModal.classList.remove('hidden');
+          settingsModal.classList.add('flex');
         });
-
-        document.getElementById('route-preset-select').addEventListener('change', (e) => {
-          document.getElementById('custom-dest-wrap').classList.toggle('hidden', e.target.value !== 'custom');
+        document.getElementById('settings-close-btn').addEventListener('click', () => {
+          settingsModal.classList.add('hidden');
+          settingsModal.classList.remove('flex');
         });
-
-        document.getElementById('save-route-btn').addEventListener('click', () => {
-          const modeVal = document.getElementById('route-mode-select').value;
-          const presetVal = document.getElementById('route-preset-select').value;
-          state.routeMode = modeVal === 'car' ? 'car' : 'public';
-          state.routePreset = (presetVal === 'custom' || DEST_PRESETS[presetVal]) ? presetVal : 'gangnam';
-          if (state.routePreset === 'custom') {
-            const o = Security.sanitizeTextInput(document.getElementById('route-origin-input').value, 30);
-            const d = Security.sanitizeTextInput(document.getElementById('route-dest-input').value, 30);
-            if (!d) return;
-            state.routeOrigin = o;
-            state.routeDest = d;
-          } else {
-            state.routeOrigin = '';
-            state.routeDest = DEST_PRESETS[state.routePreset].name;
+        settingsModal.addEventListener('click', (e) => {
+          if (e.target === settingsModal) {
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
           }
-          savePrefs();
-          renderRouteCard();
-          showToast('출근지 저장됨');
         });
 
         document.getElementById('save-finnhub-btn').addEventListener('click', () => {
@@ -1617,13 +1659,6 @@
             savePrefs();
             renderCommuteCountdown();
           }
-        });
-
-        document.getElementById('theme-toggle-btn').addEventListener('click', () => {
-          state.darkMode = !state.darkMode;
-          savePrefs();
-          applyTheme();
-          syncSettingsUI();
         });
 
         document.getElementById('gps-toggle-btn').addEventListener('click', () => {
@@ -1670,9 +1705,7 @@
           state.darkMode = false;
           state.departTime = '08:00';
           state.routeMode = 'public';
-          state.routePreset = 'gangnam';
-          state.routeOrigin = '';
-          state.routeDest = '강남역';
+          state.dest = { name: '강남역', lat: 37.4979, lng: 127.0276 };
           state.finnhubKey = '';
           state.categoryId = 'hk-econ';
           state.keywordFilter = '';
