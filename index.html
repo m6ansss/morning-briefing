@@ -3,358 +3,438 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>아침 브리핑 · Morning Briefing PWA</title>
+  <title>출근 브리핑</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="아침 브리핑" />
-  <meta id="theme-color-meta" name="theme-color" content="#1b56b8" />
+  <meta name="apple-mobile-web-app-title" content="출근 브리핑" />
+  <meta id="theme-color-meta" name="theme-color" content="#f6f6f7" />
   <link id="apple-touch-icon-link" rel="apple-touch-icon" href="" />
   <link id="manifest-link" rel="manifest" href="" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     :root {
-      --bg-page: #f2f2f7;
+      --bg-page: #f6f6f7;
       --bg-card: #ffffff;
-      --bg-subtle: #f8fafc;
-      --text-primary: #1c1c1e;
-      --text-secondary: #64748b;
-      --border-soft: rgba(148, 163, 184, 0.25);
+      --bg-subtle: #f2f2f4;
+      --bg-nav: rgba(255, 255, 255, 0.9);
+      --text-1: #111113;
+      --text-2: #6e6e73;
+      --text-3: #9a9aa0;
+      --line: rgba(17, 17, 19, 0.07);
+      --accent: #111113;
+      --accent-inv: #ffffff;
     }
 
     html.dark {
-      --bg-page: #000000;
-      --bg-card: #1c1c1e;
-      --bg-subtle: #2c2c2e;
-      --text-primary: #f2f2f7;
-      --text-secondary: #98989f;
-      --border-soft: rgba(255, 255, 255, 0.1);
+      --bg-page: #0c0c0e;
+      --bg-card: #161618;
+      --bg-subtle: #222226;
+      --bg-nav: rgba(22, 22, 24, 0.9);
+      --text-1: #f5f5f7;
+      --text-2: #98989f;
+      --text-3: #636369;
+      --line: rgba(255, 255, 255, 0.08);
+      --accent: #f5f5f7;
+      --accent-inv: #111113;
     }
 
+    * { -webkit-tap-highlight-color: transparent; }
+
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
       background-color: var(--bg-page);
-      color: var(--text-primary);
+      color: var(--text-1);
       -webkit-font-smoothing: antialiased;
+      font-feature-settings: "tnum" 1;
       padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
+      padding-bottom: calc(88px + env(safe-area-inset-bottom));
       transition: background-color 0.2s ease, color 0.2s ease;
     }
 
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-    .ios-card {
+    .card {
       background: var(--bg-card);
-      border: 1px solid var(--border-soft);
-      border-radius: 18px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.03);
+      border: 1px solid var(--line);
+      border-radius: 20px;
     }
 
-    .ios-icon-btn {
+    .subtle { background: var(--bg-subtle); }
+    .hairline { border-color: var(--line); }
+    .t2 { color: var(--text-2); }
+    .t3 { color: var(--text-3); }
+
+    .chip-active {
+      background: var(--accent);
+      color: var(--accent-inv);
+    }
+
+    .chip-idle {
       background: var(--bg-card);
-      border: 1px solid var(--border-soft);
-      color: var(--text-primary);
+      color: var(--text-2);
+      border: 1px solid var(--line);
     }
 
-    .ios-modal-panel {
+    .bottom-nav {
+      background: var(--bg-nav);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--line);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .modal-sheet {
       background: var(--bg-card);
-      color: var(--text-primary);
-      border: 1px solid var(--border-soft);
+      color: var(--text-1);
+      border-top: 1px solid var(--line);
     }
 
-    .ios-subtle-box {
+    .input-box {
       background: var(--bg-subtle);
-      border: 1px solid var(--border-soft);
-    }
-
-    .ios-input {
-      background: var(--bg-subtle);
-      color: var(--text-primary);
-      border: 1px solid var(--border-soft);
-    }
-
-    .text-muted {
-      color: var(--text-secondary);
-    }
-
-    .hero-sky-day {
-      background: linear-gradient(135deg, #1b56b8 0%, #3b82f6 55%, #60a5fa 100%);
-    }
-
-    .hero-sky-rain {
-      background: linear-gradient(135deg, #273c5a 0%, #3b5578 55%, #557299 100%);
-    }
-
-    .hero-sky-night {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%);
+      color: var(--text-1);
+      border: 1px solid var(--line);
     }
 
     @keyframes pulseSoft {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.45; }
+      50% { opacity: 0.4; }
     }
-    .skeleton {
-      animation: pulseSoft 1.5s ease-in-out infinite;
-    }
+    .skeleton { animation: pulseSoft 1.3s ease-in-out infinite; }
   </style>
 </head>
 <body class="min-h-screen">
-  <div class="max-w-lg mx-auto px-4 pt-4 pb-10">
-    <!-- Top Header -->
-    <header class="flex items-center justify-between mb-4">
+  <div class="max-w-md mx-auto px-4 pt-5">
+    <!-- Minimal Header -->
+    <header class="flex items-center justify-between mb-5 px-0.5">
       <div>
-        <p id="date-label" class="text-xs font-medium text-muted tracking-tight"></p>
-        <h1 id="greeting-label" class="text-2xl font-extrabold tracking-tight">좋은 아침이에요</h1>
+        <p id="date-label" class="text-xs font-medium t2"></p>
+        <h1 id="city-header" class="text-xl font-bold tracking-tight mt-0.5">하남</h1>
       </div>
-      <div class="flex items-center gap-1.5">
-        <button
-          id="theme-toggle-btn"
-          type="button"
-          aria-label="다크모드 전환"
-          class="ios-icon-btn w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:scale-95 transition"
-        >
-          <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
-        </button>
-        <button
-          id="refresh-btn"
-          type="button"
-          aria-label="새로고침"
-          class="ios-icon-btn w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:scale-95 transition"
-        >
+      <div class="flex items-center gap-1">
+        <button id="refresh-btn" type="button" aria-label="새로고침" class="w-9 h-9 rounded-full flex items-center justify-center t2 hover:opacity-70 active:scale-95 transition">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
-        <button
-          id="security-btn"
-          type="button"
-          aria-label="보안 및 설치 안내"
-          class="ios-icon-btn w-9 h-9 rounded-full shadow-sm flex items-center justify-center text-emerald-500 active:scale-95 transition"
-        >
-          <i data-lucide="shield-check" class="w-4 h-4"></i>
-        </button>
-        <button
-          id="settings-btn"
-          type="button"
-          aria-label="설정"
-          class="ios-icon-btn w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:scale-95 transition"
-        >
-          <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+        <button id="settings-btn" type="button" aria-label="설정" class="w-9 h-9 rounded-full flex items-center justify-center t2 hover:opacity-70 active:scale-95 transition">
+          <i data-lucide="settings" class="w-4 h-4"></i>
         </button>
       </div>
     </header>
 
-    <!-- Status Notice Banner -->
-    <div id="status-banner" class="hidden mb-4 px-3.5 py-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs flex items-center justify-between gap-2">
-      <div class="flex items-center gap-2 min-w-0">
-        <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
-        <span id="status-banner-text" class="truncate"></span>
-      </div>
-      <button id="status-banner-close" type="button" class="font-semibold shrink-0 px-1">닫기</button>
+    <!-- Status Notice -->
+    <div id="status-banner" class="hidden mb-4 px-3.5 py-2.5 rounded-2xl subtle text-xs t2 flex items-center justify-between gap-2">
+      <span id="status-banner-text" class="truncate"></span>
+      <button id="status-banner-close" type="button" class="font-semibold shrink-0">닫기</button>
     </div>
 
-    <!-- Weather Hero Card -->
-    <section id="weather-hero" class="hero-sky-day rounded-[24px] p-5 text-white shadow-lg mb-4 transition-all">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <div class="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-semibold mb-2">
-            <i id="location-icon" data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-            <span id="city-name">하남</span>
-            <span id="gps-badge" class="hidden text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full">GPS</span>
-          </div>
-          <div class="flex items-baseline gap-2">
-            <span id="current-temp" class="text-5xl font-extrabold tracking-tight">--°</span>
-            <span id="weather-condition" class="text-base font-semibold text-white/90">불러오는 중</span>
-          </div>
-          <p id="feels-like" class="text-xs text-white/85 mt-1">체감 --° · 최고 --° / 최저 --°</p>
+    <!-- ==================== TAB 1: TODAY ==================== -->
+    <main id="tab-home" class="space-y-3.5">
+      <!-- 1. Weather & Practical Outfit Card -->
+      <section class="card p-5">
+        <div class="flex items-center justify-between text-xs t2 mb-3">
+          <span id="yesterday-diff">실시간</span>
+          <span id="commute-countdown" class="font-semibold">출발 08:00</span>
         </div>
 
-        <div class="flex flex-col items-end gap-2">
-          <div id="weather-icon-wrap" class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
-            <i data-lucide="sun" class="w-8 h-8 text-amber-200"></i>
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-baseline gap-2.5">
+              <span id="current-temp" class="text-[52px] leading-none font-bold tracking-tighter">--°</span>
+              <span id="weather-condition" class="text-base font-semibold">불러오는 중</span>
+            </div>
+            <p id="feels-like" class="text-xs t2 mt-2">체감 --° · 최고 --° / 최저 --°</p>
           </div>
-          <div class="inline-flex items-center gap-1 text-xs font-semibold text-sky-100">
-            <i data-lucide="droplets" class="w-3.5 h-3.5"></i>
-            <span id="rain-prob">강수 --%</span>
+          <div id="weather-icon-wrap" class="w-12 h-12 rounded-2xl subtle flex items-center justify-center shrink-0">
+            <i data-lucide="sun" class="w-6 h-6"></i>
           </div>
         </div>
-      </div>
 
-      <div class="mt-4 bg-white/15 backdrop-blur-sm rounded-2xl px-3.5 py-2.5 flex items-center gap-2">
-        <i data-lucide="sparkles" class="w-4 h-4 shrink-0 text-amber-200"></i>
-        <p id="morning-tip" class="text-xs font-medium text-white leading-relaxed">오늘 날씨와 대기질에 맞는 아침 팁을 준비하고 있어요.</p>
-      </div>
-    </section>
-
-    <!-- Air Quality & UV Strip -->
-    <section class="grid grid-cols-3 gap-2.5 mb-5">
-      <div class="ios-card p-3 flex flex-col gap-1">
-        <span class="text-[11px] font-medium text-muted">미세먼지 PM10</span>
-        <div class="flex items-baseline justify-between gap-1">
-          <span id="pm10-value" class="text-base font-bold">--</span>
-          <span id="pm10-badge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-500/15 text-muted">대기</span>
+        <!-- 08시 / 12시 / 18시 Intuitive Strip (Icon + Temp + Droplet Rain Prob) -->
+        <div class="grid grid-cols-3 mt-5 pt-4 border-t hairline text-center">
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[11px] t3 font-medium">출근 08시</span>
+            <div id="slot-morning-icon" class="t2"><i data-lucide="sun" class="w-4 h-4"></i></div>
+            <span id="slot-morning-temp" class="text-sm font-bold">--°</span>
+            <span class="inline-flex items-center gap-0.5 text-[11px] text-sky-500 font-medium">
+              <i data-lucide="droplet" class="w-3 h-3"></i>
+              <span id="slot-morning-rain">강수 --%</span>
+            </span>
+          </div>
+          <div class="flex flex-col items-center gap-1 border-x hairline">
+            <span class="text-[11px] t3 font-medium">점심 12시</span>
+            <div id="slot-lunch-icon" class="t2"><i data-lucide="sun" class="w-4 h-4"></i></div>
+            <span id="slot-lunch-temp" class="text-sm font-bold">--°</span>
+            <span class="inline-flex items-center gap-0.5 text-[11px] text-sky-500 font-medium">
+              <i data-lucide="droplet" class="w-3 h-3"></i>
+              <span id="slot-lunch-rain">강수 --%</span>
+            </span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-[11px] t3 font-medium">퇴근 18시</span>
+            <div id="slot-evening-icon" class="t2"><i data-lucide="sun" class="w-4 h-4"></i></div>
+            <span id="slot-evening-temp" class="text-sm font-bold">--°</span>
+            <span class="inline-flex items-center gap-0.5 text-[11px] text-sky-500 font-medium">
+              <i data-lucide="droplet" class="w-3 h-3"></i>
+              <span id="slot-evening-rain">강수 --%</span>
+            </span>
+          </div>
         </div>
-      </div>
-      <div class="ios-card p-3 flex flex-col gap-1">
-        <span class="text-[11px] font-medium text-muted">초미세 PM2.5</span>
-        <div class="flex items-baseline justify-between gap-1">
-          <span id="pm25-value" class="text-base font-bold">--</span>
-          <span id="pm25-badge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-500/15 text-muted">대기</span>
+
+        <!-- Detailed Practical Outfit, Umbrella & Air Quality Rows -->
+        <div class="mt-4 pt-3.5 border-t hairline space-y-2 text-xs">
+          <div class="flex items-start justify-between gap-3">
+            <span class="t2 shrink-0 font-medium">옷차림</span>
+            <span id="outfit-detail" class="font-semibold text-right">기온 확인 중</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="t2 shrink-0 font-medium">우산 · 미세먼지</span>
+            <span id="umbrella-aq-detail" class="font-semibold text-right">--</span>
+          </div>
         </div>
-      </div>
-      <div class="ios-card p-3 flex flex-col gap-1">
-        <span class="text-[11px] font-medium text-muted">자외선 UV</span>
-        <div class="flex items-baseline justify-between gap-1">
-          <span id="uv-value" class="text-base font-bold">--</span>
-          <span id="uv-badge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-500/15 text-muted">대기</span>
+      </section>
+
+      <!-- 2. Market & Stock Snapshot Card (Home) -->
+      <section class="card p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold">증시 · 시장</h2>
+          <div class="flex items-center gap-2.5 text-[11px] font-semibold t2">
+            <a href="https://m.stock.naver.com/domestic/index/KOSPI/total" target="_blank" rel="noopener noreferrer" class="hover:opacity-70">국내증시 ↗</a>
+            <a href="https://m.stock.naver.com/worldstock/index/.IXIC/total" target="_blank" rel="noopener noreferrer" class="hover:opacity-70">미국증시 ↗</a>
+          </div>
         </div>
+
+        <!-- Live Market Grid (FX + BTC + Optional Live US ETFs via Finnhub Key) -->
+        <div id="market-grid" class="grid grid-cols-3 gap-2">
+          <div class="subtle rounded-xl p-2.5">
+            <p class="text-[10px] font-semibold t2">원/달러</p>
+            <p id="home-fx-usd" class="text-sm font-bold mt-1">--</p>
+            <p id="home-fx-date" class="text-[10px] t3 mt-0.5">환율</p>
+          </div>
+          <div class="subtle rounded-xl p-2.5">
+            <p class="text-[10px] font-semibold t2">엔화 100</p>
+            <p id="home-fx-jpy" class="text-sm font-bold mt-1">--</p>
+            <p class="text-[10px] t3 mt-0.5">JPY/KRW</p>
+          </div>
+          <div class="subtle rounded-xl p-2.5">
+            <p class="text-[10px] font-semibold t2">비트코인</p>
+            <p id="home-btc-price" class="text-sm font-bold mt-1">--</p>
+            <p id="home-btc-change" class="text-[10px] font-semibold t3 mt-0.5">--</p>
+          </div>
+        </div>
+
+        <!-- Live US Index ETFs Row (Shown automatically when Finnhub free key is added in Settings) -->
+        <div id="stock-quotes-row" class="hidden grid grid-cols-3 gap-2 mt-2"></div>
+      </section>
+
+      <!-- 3. Naver Map Direct Commute Route Card -->
+      <section class="card p-4">
+        <div class="flex items-center justify-between gap-3">
+          <a
+            id="naver-route-link"
+            href="https://m.map.naver.com/route.nhn?menu=route"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-3 flex-1 min-w-0 active:opacity-70 transition"
+          >
+            <div class="w-9 h-9 rounded-xl bg-[#03c75a]/12 text-[#03c75a] flex items-center justify-center shrink-0">
+              <i data-lucide="navigation" class="w-4 h-4"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-semibold t2">네이버 지도 길찾기</p>
+              <p id="route-label" class="text-sm font-bold truncate mt-0.5">하남시청 → 강남역</p>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 t3 shrink-0"></i>
+          </a>
+          <button id="edit-route-btn" type="button" aria-label="경로 수정" class="w-8 h-8 rounded-lg subtle flex items-center justify-center t2 shrink-0 active:scale-95 transition">
+            <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- 4. Editorial News List -->
+      <section class="card px-5 py-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-bold">주요 뉴스</h2>
+          <button id="home-more-news-btn" type="button" class="text-xs font-medium t2">더 보기</button>
+        </div>
+        <div id="home-news-preview" class="divide-y hairline"></div>
+      </section>
+    </main>
+
+    <!-- ==================== TAB 2: NEWS ==================== -->
+    <main id="tab-news" class="hidden space-y-3.5">
+      <div id="category-chips" class="flex gap-1.5 overflow-x-auto no-scrollbar"></div>
+      <section class="card px-5 py-2">
+        <div id="news-list" class="divide-y hairline"></div>
+      </section>
+    </main>
+
+    <!-- ==================== TAB 3: SCHEDULE ==================== -->
+    <main id="tab-life" class="hidden space-y-3.5">
+      <section class="card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold">오늘 할 일</h2>
+          <span id="focus-progress" class="text-xs font-medium t2">0/3</span>
+        </div>
+        <div id="focus-list" class="space-y-2"></div>
+      </section>
+
+      <section class="card p-5">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-bold">주간 예보</h2>
+          <span id="weekly-city-badge" class="text-xs t2">하남</span>
+        </div>
+        <div id="weekly-list" class="divide-y hairline"></div>
+      </section>
+
+      <section class="card p-5">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold">외출 체크</h2>
+          <span id="checklist-progress" class="text-xs font-medium t2">0/0</span>
+        </div>
+        <div class="flex gap-2 mb-3">
+          <input id="checklist-input" type="text" maxlength="30" placeholder="항목 추가" class="input-box flex-1 rounded-xl px-3 py-2 text-xs focus:outline-none" />
+          <button id="checklist-add-btn" type="button" class="px-3.5 py-2 rounded-xl chip-active text-xs font-semibold active:scale-95 transition">추가</button>
+        </div>
+        <div id="checklist-items" class="space-y-1.5"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Minimal 3-Tab Bottom Navigation -->
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-30">
+    <div class="max-w-md mx-auto grid grid-cols-3 h-14">
+      <button type="button" data-tab="home" class="tab-btn flex flex-col items-center justify-center gap-0.5 font-semibold">
+        <i data-lucide="sun" class="w-4 h-4"></i>
+        <span class="text-[10px]">오늘</span>
+      </button>
+      <button type="button" data-tab="news" class="tab-btn flex flex-col items-center justify-center gap-0.5 t3 font-medium">
+        <i data-lucide="newspaper" class="w-4 h-4"></i>
+        <span class="text-[10px]">뉴스</span>
+      </button>
+      <button type="button" data-tab="life" class="tab-btn flex flex-col items-center justify-center gap-0.5 t3 font-medium">
+        <i data-lucide="check-square" class="w-4 h-4"></i>
+        <span class="text-[10px]">일정</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Quick Reader Bottom Sheet -->
+  <div id="reader-modal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-black/45 backdrop-blur-xs p-0 sm:p-4">
+    <div class="modal-sheet w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 max-h-[82vh] overflow-y-auto">
+      <div class="w-9 h-1 rounded-full bg-zinc-400/35 mx-auto mb-4 sm:hidden"></div>
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2 text-xs t2">
+          <span id="reader-source" class="font-semibold">언론사</span>
+          <span>·</span>
+          <span id="reader-time">방금 전</span>
+        </div>
+        <button id="reader-close-btn" type="button" class="text-xs font-medium t2 px-2 py-1">닫기</button>
       </div>
-    </section>
-
-    <!-- Hourly Forecast -->
-    <section class="mb-6">
-      <div class="flex items-center justify-between mb-2.5 px-1">
-        <h2 class="text-sm font-bold">시간대별 예보</h2>
-        <span id="updated-time" class="text-[11px] text-muted">업데이트 대기 중</span>
+      <h3 id="reader-title" class="text-base font-bold leading-snug mb-3"></h3>
+      <p id="reader-summary" class="text-sm t2 leading-relaxed mb-6"></p>
+      <div class="flex items-center gap-2">
+        <a id="reader-direct-link" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 py-3 px-4 rounded-xl chip-active text-sm font-semibold text-center active:opacity-80 transition">
+          원문 열기 ↗
+        </a>
+        <button id="reader-bookmark-btn" type="button" aria-label="북마크" class="subtle w-11 h-11 rounded-xl flex items-center justify-center active:scale-95 transition">
+          <i id="reader-bookmark-icon" data-lucide="bookmark" class="w-4 h-4"></i>
+        </button>
       </div>
-      <div id="hourly-strip" class="flex gap-2.5 overflow-x-auto no-scrollbar pb-1"></div>
-    </section>
-
-    <!-- News Headlines -->
-    <section>
-      <div class="flex items-center justify-between mb-2.5 px-1">
-        <h2 class="text-sm font-bold">아침 뉴스 헤드라인</h2>
-        <span id="news-source-badge" class="text-[11px] font-medium px-2 py-0.5 rounded-full ios-subtle-box text-muted">HTTPS 검증됨</span>
-      </div>
-
-      <!-- Category Chips -->
-      <div id="category-chips" class="flex gap-2 overflow-x-auto no-scrollbar mb-3 pb-0.5"></div>
-
-      <!-- News Cards Container -->
-      <div id="news-list" class="space-y-2.5"></div>
-    </section>
-
-    <!-- Footer Security Note -->
-    <footer class="mt-8 text-center">
-      <p class="text-[11px] text-muted">
-        HTTPS 전용 링크 검증 · DOM XSS 차단 · 7일 만료 없는 무료 PWA
-      </p>
-    </footer>
+    </div>
   </div>
 
   <!-- Settings Modal -->
-  <div id="settings-modal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-xs p-0 sm:p-4">
-    <div class="ios-modal-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold">브리핑 설정</h3>
-        <button id="settings-close-btn" type="button" class="text-sm font-semibold text-blue-500 px-2 py-1">완료</button>
+  <div id="settings-modal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center bg-black/45 backdrop-blur-xs p-0 sm:p-4">
+    <div class="modal-sheet w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 max-h-[86vh] overflow-y-auto">
+      <div class="w-9 h-1 rounded-full bg-zinc-400/35 mx-auto mb-4 sm:hidden"></div>
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-base font-bold">설정</h3>
+        <button id="settings-close-btn" type="button" class="text-sm font-semibold px-2 py-1">완료</button>
       </div>
 
-      <div class="space-y-5">
-        <!-- Location Setting -->
-        <div>
-          <label class="block text-xs font-semibold text-muted mb-2">위치 설정</label>
-          <div class="ios-subtle-box flex items-center justify-between rounded-2xl p-3.5 mb-2.5">
-            <div>
-              <p class="text-sm font-semibold">현재 위치 자동 감지 (GPS)</p>
-              <p class="text-xs text-muted">기기의 위치 정보로 날씨·미세먼지를 불러옵니다</p>
-            </div>
-            <button
-              id="gps-toggle-btn"
-              type="button"
-              role="switch"
-              aria-checked="false"
-              class="w-12 h-7 rounded-full bg-slate-400 relative transition-colors shrink-0"
-            >
-              <span id="gps-toggle-knob" class="block w-5 h-5 bg-white rounded-full shadow transform translate-x-1 transition-transform"></span>
-            </button>
+      <div class="space-y-5 text-sm">
+        <!-- Naver Map Commute Route -->
+        <div class="space-y-2">
+          <label class="block text-xs font-semibold t2">네이버 지도 출근 경로</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="route-origin-input" type="text" maxlength="30" placeholder="출발지 (예: 하남시청)" class="input-box rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none" />
+            <input id="route-dest-input" type="text" maxlength="30" placeholder="도착지 (예: 강남역)" class="input-box rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none" />
           </div>
+          <button id="save-route-btn" type="button" class="w-full py-2.5 rounded-xl chip-active text-xs font-semibold active:scale-[0.99] transition">경로 저장</button>
+        </div>
 
-          <div id="manual-city-wrap">
-            <label for="city-select" class="block text-xs font-medium text-muted mb-1.5">수동 도시 선택</label>
-            <select id="city-select" class="ios-input w-full rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+        <!-- Departure Time -->
+        <div>
+          <label for="depart-time-input" class="block text-xs font-semibold t2 mb-2">출발 시각</label>
+          <input id="depart-time-input" type="time" value="08:00" class="input-box w-full rounded-xl px-3.5 py-2.5 text-sm font-semibold focus:outline-none" />
+        </div>
+
+        <!-- Optional Finnhub Key for Live US Stock Quotes (SPY, QQQ, NVDA) -->
+        <div>
+          <label for="finnhub-key-input" class="block text-xs font-semibold t2 mb-2">미국 증시 실시간 키 (Finnhub 무료 키, 선택)</label>
+          <div class="flex gap-2">
+            <input id="finnhub-key-input" type="password" maxlength="80" placeholder="SPY · QQQ · NVDA 시세 연동" class="input-box flex-1 rounded-xl px-3 py-2 text-xs focus:outline-none" />
+            <button id="save-finnhub-btn" type="button" class="px-3.5 py-2 rounded-xl chip-active text-xs font-semibold">저장</button>
           </div>
         </div>
 
-        <!-- Custom Keyword Filter -->
-        <div>
-          <label for="custom-keyword-input" class="block text-xs font-semibold text-muted mb-1.5">뉴스 키워드 필터 (선택, 최대 20자)</label>
-          <div class="flex gap-2">
-            <input
-              id="custom-keyword-input"
-              type="text"
-              maxlength="20"
-              placeholder="예: AI, 반도체, 환율"
-              class="ios-input flex-1 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button id="apply-keyword-btn" type="button" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 active:scale-95 transition">적용</button>
+        <!-- Theme & GPS Toggles -->
+        <div class="space-y-2">
+          <div class="subtle flex items-center justify-between rounded-xl px-4 py-3">
+            <span class="text-xs font-semibold">다크 모드</span>
+            <button id="theme-toggle-btn" type="button" role="switch" aria-checked="false" class="w-11 h-6 rounded-full bg-zinc-400 relative transition-colors">
+              <span id="theme-toggle-knob" class="block w-4 h-4 bg-white rounded-full shadow transform translate-x-1 transition-transform"></span>
+            </button>
           </div>
-          <p class="text-[11px] text-muted mt-1">입력값은 제어문자 제거 및 길이 제한 후 안전하게 필터링됩니다.</p>
+          <div class="subtle flex items-center justify-between rounded-xl px-4 py-3">
+            <span class="text-xs font-semibold">현재 위치 (GPS)</span>
+            <button id="gps-toggle-btn" type="button" role="switch" aria-checked="false" class="w-11 h-6 rounded-full bg-zinc-400 relative transition-colors">
+              <span id="gps-toggle-knob" class="block w-4 h-4 bg-white rounded-full shadow transform translate-x-1 transition-transform"></span>
+            </button>
+          </div>
+          <div id="manual-city-wrap">
+            <select id="city-select" aria-label="도시 선택" class="input-box w-full rounded-xl px-3.5 py-2.5 text-xs font-semibold focus:outline-none"></select>
+          </div>
+        </div>
+
+        <!-- Keyword Filter -->
+        <div>
+          <label for="custom-keyword-input" class="block text-xs font-semibold t2 mb-2">뉴스 키워드</label>
+          <div class="flex gap-2">
+            <input id="custom-keyword-input" type="text" maxlength="20" placeholder="예: AI, 반도체" class="input-box flex-1 rounded-xl px-3 py-2 text-xs focus:outline-none" />
+            <button id="apply-keyword-btn" type="button" class="px-3.5 py-2 rounded-xl chip-active text-xs font-semibold">적용</button>
+          </div>
         </div>
 
         <!-- Reset -->
-        <div class="pt-3 border-t border-slate-500/15 flex items-center justify-between">
-          <span class="text-xs text-muted">로컬 캐시 및 설정 초기화</span>
-          <button id="reset-settings-btn" type="button" class="text-xs font-semibold text-rose-500 px-2.5 py-1.5 rounded-lg hover:bg-rose-500/10">초기화</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Security & iPhone Install Modal -->
-  <div id="security-modal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-xs p-0 sm:p-4">
-    <div class="ios-modal-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-2">
-          <i data-lucide="shield-check" class="w-5 h-5 text-emerald-500"></i>
-          <h3 class="text-base font-bold">시큐어 코딩 & 아이폰 설치</h3>
-        </div>
-        <button id="security-close-btn" type="button" class="text-sm font-semibold text-blue-500 px-2 py-1">닫기</button>
-      </div>
-
-      <div class="space-y-4 text-xs leading-relaxed">
-        <div class="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-3.5 space-y-1.5">
-          <p class="font-bold text-emerald-600">활성화된 보안 방어 계층</p>
-          <ul class="space-y-1 text-muted list-disc list-inside">
-            <li>외부 링크 <strong>HTTPS 전용</strong> 검증 (커스텀 스킴·사설 IP 차단)</li>
-            <li>비재귀 선형 O(n) JSON 중첩 깊이(16단계)·크기(512KB) 제한</li>
-            <li>정규표현식(ReDoS) 없는 O(n) HTML 정제 및 <code>textContent</code> 전용 DOM 렌더링</li>
-            <li>허용된 공식 API 도메인 화이트리스트 & 10초 타임아웃</li>
-          </ul>
-          <p id="security-stats" class="text-[11px] font-semibold text-emerald-600 pt-1"></p>
-        </div>
-
-        <div class="ios-subtle-box rounded-2xl p-3.5 space-y-2">
-          <p class="font-bold">GitHub Pages 무료 배포 & 아이폰 설치</p>
-          <ol class="space-y-1.5 text-muted list-decimal list-inside">
-            <li>ZIP 압축을 풀어 나온 <code>index.html</code>을 만들어 둔 GitHub 저장소에 업로드합니다.</li>
-            <li>저장소 <strong>Settings → Pages</strong>에서 <code>main</code> 브랜치를 선택해 무료 HTTPS 주소를 발급받습니다.</li>
-            <li>아이폰 <strong>Safari</strong>에서 해당 주소로 접속해 <strong>공유 → 홈 화면에 추가</strong>(웹 앱으로 열기 ON)를 누릅니다.</li>
-          </ol>
+        <div class="pt-4 border-t hairline flex items-center justify-between">
+          <span id="security-stats" class="text-[11px] t3">HTTPS · XSS 차단 활성</span>
+          <button id="reset-settings-btn" type="button" class="text-xs font-semibold text-rose-500">초기화</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Toast -->
-  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs font-medium shadow-lg"></div>
+  <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2 rounded-full chip-active text-xs font-medium shadow-lg whitespace-nowrap"></div>
 
   <script>
     (() => {
       'use strict';
 
       // ============================================================
-      // 1. Security Layer (Zero-Recursion, Strict Allowlist, XSS-Safe)
+      // 1. Security Layer
       // ============================================================
       const ALLOWED_API_HOSTS = new Set([
         'api.open-meteo.com',
         'air-quality-api.open-meteo.com',
+        'api.frankfurter.dev',
+        'api.binance.com',
+        'finnhub.io',
         'api.rss2json.com'
       ]);
 
@@ -367,9 +447,7 @@
 
         isDisallowedHost(host) {
           const h = String(host || '').toLowerCase();
-          if (!h || h === 'localhost' || h === '::1' || h.endsWith('.local') || h.endsWith('.internal')) {
-            return true;
-          }
+          if (!h || h === 'localhost' || h === '::1' || h.endsWith('.local') || h.endsWith('.internal')) return true;
           const parts = h.split('.');
           if (parts.length === 4 && parts.every((p) => /^\d+$/.test(p) && Number(p) >= 0 && Number(p) <= 255)) {
             const a = Number(parts[0]);
@@ -384,23 +462,18 @@
 
         validatedExternalURL(raw) {
           if (typeof raw !== 'string') return null;
-          const trimmed = raw.trim();
+          let trimmed = raw.trim();
           if (!trimmed || trimmed.length > this.MAX_URL_LENGTH) return null;
+          if (trimmed.startsWith('http://news.sbs.co.kr/') || trimmed.startsWith('http://www.hankyung.com/')) {
+            trimmed = 'https://' + trimmed.slice(7);
+          }
           for (let i = 0; i < trimmed.length; i += 1) {
             const code = trimmed.charCodeAt(i);
             if (code <= 31 || code === 127) return null;
           }
           try {
             const parsed = new URL(trimmed);
-            if (parsed.protocol !== 'https:') {
-              this.blockedLinksCount += 1;
-              return null;
-            }
-            if (parsed.username || parsed.password) {
-              this.blockedLinksCount += 1;
-              return null;
-            }
-            if (this.isDisallowedHost(parsed.hostname)) {
+            if (parsed.protocol !== 'https:' || parsed.username || parsed.password || this.isDisallowedHost(parsed.hostname)) {
               this.blockedLinksCount += 1;
               return null;
             }
@@ -412,40 +485,27 @@
         },
 
         isValidCoordinate(lat, lon) {
-          return (
-            Number.isFinite(lat) &&
-            Number.isFinite(lon) &&
-            lat >= -90 && lat <= 90 &&
-            lon >= -180 && lon <= 180
-          );
+          return Number.isFinite(lat) && Number.isFinite(lon) && lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
         },
 
-        sanitizeTextInput(raw, maxLen = 20) {
+        sanitizeTextInput(raw, maxLen = 30) {
           if (typeof raw !== 'string') return '';
           let out = '';
           for (let i = 0; i < raw.length && out.length < maxLen; i += 1) {
             const code = raw.charCodeAt(i);
-            if (code >= 32 && code !== 127) {
-              out += raw[i];
-            }
+            if (code >= 32 && code !== 127) out += raw[i];
           }
           return out.trim();
         },
 
-        stripHTMLSafely(raw, maxLen = 220) {
+        stripHTMLSafely(raw, maxLen = 360) {
           if (typeof raw !== 'string') return '';
           let out = '';
           let inTag = false;
           for (let i = 0; i < raw.length && out.length < maxLen; i += 1) {
             const ch = raw[i];
-            if (ch === '<') {
-              inTag = true;
-              continue;
-            }
-            if (ch === '>') {
-              inTag = false;
-              continue;
-            }
+            if (ch === '<') { inTag = true; continue; }
+            if (ch === '>') { inTag = false; continue; }
             if (!inTag) out += ch;
           }
           return out
@@ -455,6 +515,7 @@
             .replaceAll('&amp;', '&')
             .replaceAll('&lt;', '<')
             .replaceAll('&gt;', '>')
+            .replaceAll('&nbsp;', ' ')
             .trim();
         },
 
@@ -465,18 +526,13 @@
           for (let i = 0; i < text.length; i += 1) {
             const ch = text[i];
             if (inString) {
-              if (escaped) {
-                escaped = false;
-              } else if (ch === '\\') {
-                escaped = true;
-              } else if (ch === '"') {
-                inString = false;
-              }
+              if (escaped) escaped = false;
+              else if (ch === '\\') escaped = true;
+              else if (ch === '"') inString = false;
               continue;
             }
-            if (ch === '"') {
-              inString = true;
-            } else if (ch === '{' || ch === '[') {
+            if (ch === '"') inString = true;
+            else if (ch === '{' || ch === '[') {
               depth += 1;
               if (depth > maxDepth) return false;
             } else if (ch === '}' || ch === ']') {
@@ -490,12 +546,10 @@
         async fetchValidatedJSON(urlString) {
           const parsed = new URL(urlString);
           if (parsed.protocol !== 'https:' || !ALLOWED_API_HOSTS.has(parsed.hostname.toLowerCase())) {
-            throw new Error('허용되지 않은 호스트 요청이 차단되었습니다.');
+            throw new Error('차단된 요청입니다.');
           }
-
           const controller = new AbortController();
           const timer = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
-
           try {
             const response = await fetch(parsed.href, {
               method: 'GET',
@@ -505,16 +559,10 @@
               redirect: 'error',
               signal: controller.signal
             });
-            if (!response.ok) {
-              throw new Error('서버 응답이 올바르지 않습니다.');
-            }
+            if (!response.ok) throw new Error('응답 오류');
             const text = await response.text();
-            if (text.length > this.MAX_RESPONSE_BYTES) {
-              throw new Error('응답 크기가 안전 한도를 초과했습니다.');
-            }
-            if (!this.validateJSONDepth(text)) {
-              throw new Error('비정상적인 JSON 구조가 차단되었습니다.');
-            }
+            if (text.length > this.MAX_RESPONSE_BYTES) throw new Error('응답 크기 초과');
+            if (!this.validateJSONDepth(text)) throw new Error('JSON 구조 오류');
             return JSON.parse(text);
           } finally {
             clearTimeout(timer);
@@ -523,19 +571,15 @@
       };
 
       // ============================================================
-      // 2. Dynamic PWA Icon & Manifest Setup
+      // 2. PWA Metadata
       // ============================================================
       function setupPWAMetadata() {
         try {
           const iconSVG = [
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">',
-            '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">',
-            '<stop offset="0%" stop-color="#1b56b8"/><stop offset="100%" stop-color="#60a5fa"/>',
-            '</linearGradient></defs>',
-            '<rect width="512" height="512" rx="112" fill="url(#g)"/>',
-            '<circle cx="256" cy="216" r="82" fill="#fde047"/>',
-            '<rect x="116" y="328" width="280" height="28" rx="14" fill="#ffffff" opacity="0.92"/>',
-            '<rect x="156" y="376" width="200" height="22" rx="11" fill="#ffffff" opacity="0.65"/>',
+            '<rect width="512" height="512" rx="112" fill="#111113"/>',
+            '<circle cx="256" cy="212" r="72" fill="#f5f5f7"/>',
+            '<rect x="136" y="330" width="240" height="24" rx="12" fill="#f5f5f7" opacity="0.85"/>',
             '</svg>'
           ].join('');
           const iconDataURI = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSVG);
@@ -543,24 +587,22 @@
           if (appleLink) appleLink.href = iconDataURI;
 
           const manifest = {
-            name: '아침 브리핑',
-            short_name: '아침 브리핑',
+            name: '출근 브리핑',
+            short_name: '출근 브리핑',
             start_url: '.',
             display: 'standalone',
-            background_color: '#f2f2f7',
-            theme_color: '#1b56b8',
+            background_color: '#f6f6f7',
+            theme_color: '#f6f6f7',
             icons: [{ src: iconDataURI, sizes: '512x512', type: 'image/svg+xml' }]
           };
           const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
           const manifestLink = document.getElementById('manifest-link');
           if (manifestLink) manifestLink.href = URL.createObjectURL(blob);
-        } catch (_) {
-          // Ignore in restricted environments
-        }
+        } catch (_) {}
       }
 
       // ============================================================
-      // 3. Domain Presets & State
+      // 3. Presets & State
       // ============================================================
       const CITY_PRESETS = [
         { id: 'hanam', name: '하남', lat: 37.5393, lon: 127.2148 },
@@ -571,72 +613,92 @@
       ];
 
       const NEWS_CATEGORIES = [
-        { id: 'top', label: '주요', rss: 'https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko' },
-        { id: 'business', label: '경제', rss: 'https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko' },
-        { id: 'tech', label: 'IT·과학', rss: 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=ko&gl=KR&ceid=KR:ko' },
-        { id: 'nation', label: '사회', rss: 'https://news.google.com/rss/headlines/section/topic/NATION?hl=ko&gl=KR&ceid=KR:ko' },
-        { id: 'world', label: '글로벌', rss: 'https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko' }
+        { id: 'hk-econ', label: '경제', source: '한국경제', rss: 'https://www.hankyung.com/feed/economy' },
+        { id: 'sbs-top', label: '주요', source: 'SBS', rss: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=01&plink=RSSREADER' },
+        { id: 'sbs-tech', label: 'IT', source: 'SBS', rss: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=08&plink=RSSREADER' },
+        { id: 'sbs-soc', label: '사회', source: 'SBS', rss: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=03&plink=RSSREADER' },
+        { id: 'sbs-world', label: '국제', source: 'SBS', rss: 'https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=07&plink=RSSREADER' },
+        { id: 'saved', label: '북마크', source: '저장됨', rss: '' }
       ];
 
-      const STORAGE_KEY = 'morning_briefing_pwa_prefs_v2';
+      const DEFAULT_CHECKLIST = [
+        { id: 'c1', text: '사원증 · 지갑 · 이어폰', done: false },
+        { id: 'c2', text: '우산 / 외투', done: false },
+        { id: 'c3', text: '충전기 · 보조배터리', done: false }
+      ];
+
+      const DEFAULT_FOCUS = [
+        { id: 'f1', text: '오전 메일·메신저 확인', done: false },
+        { id: 'f2', text: '핵심 업무 1건 완료', done: false },
+        { id: 'f3', text: '내일 일정 정리', done: false }
+      ];
+
+      const STORAGE_KEY = 'morning_briefing_minimal_v7';
 
       const state = {
+        activeTab: 'home',
         city: CITY_PRESETS[0],
         useGPS: false,
         darkMode: false,
-        categoryId: 'top',
+        departTime: '08:00',
+        routeOrigin: '하남시청',
+        routeDest: '강남역',
+        finnhubKey: '',
+        categoryId: 'hk-econ',
         keywordFilter: '',
         isLoading: false,
         weather: null,
         airQuality: null,
+        fx: null,
+        btc: null,
+        stocks: [],
         news: [],
-        newsLive: false,
-        updatedAt: null
+        bookmarks: [],
+        checklist: DEFAULT_CHECKLIST.map((x) => ({ ...x })),
+        focusItems: DEFAULT_FOCUS.map((x) => ({ ...x })),
+        activeArticle: null
       };
-
-      function applyTheme() {
-        const root = document.documentElement;
-        const themeMeta = document.getElementById('theme-color-meta');
-        const icon = document.getElementById('theme-icon');
-        if (state.darkMode) {
-          root.classList.add('dark');
-          if (themeMeta) themeMeta.setAttribute('content', '#000000');
-          if (icon) icon.setAttribute('data-lucide', 'sun');
-        } else {
-          root.classList.remove('dark');
-          if (themeMeta) themeMeta.setAttribute('content', '#1b56b8');
-          if (icon) icon.setAttribute('data-lucide', 'moon');
-        }
-        if (window.lucide) window.lucide.createIcons();
-      }
 
       function loadPrefs() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return;
-          if (!Security.validateJSONDepth(raw, 6)) return;
+          if (!raw || !Security.validateJSONDepth(raw, 8)) return;
           const saved = JSON.parse(raw);
-          if (saved && typeof saved === 'object') {
-            if (typeof saved.useGPS === 'boolean') state.useGPS = saved.useGPS;
-            if (typeof saved.darkMode === 'boolean') state.darkMode = saved.darkMode;
-            if (typeof saved.categoryId === 'string' && NEWS_CATEGORIES.some((c) => c.id === saved.categoryId)) {
-              state.categoryId = saved.categoryId;
-            }
-            if (typeof saved.keywordFilter === 'string') {
-              state.keywordFilter = Security.sanitizeTextInput(saved.keywordFilter, 20);
-            }
-            if (saved.city && Security.isValidCoordinate(Number(saved.city.lat), Number(saved.city.lon))) {
-              state.city = {
-                id: Security.sanitizeTextInput(String(saved.city.id || 'custom'), 24) || 'custom',
-                name: Security.sanitizeTextInput(String(saved.city.name || '하남'), 20) || '하남',
-                lat: Number(saved.city.lat),
-                lon: Number(saved.city.lon)
-              };
-            }
+          if (!saved || typeof saved !== 'object') return;
+          if (typeof saved.useGPS === 'boolean') state.useGPS = saved.useGPS;
+          if (typeof saved.darkMode === 'boolean') state.darkMode = saved.darkMode;
+          if (typeof saved.departTime === 'string' && /^\d{2}:\d{2}$/.test(saved.departTime)) state.departTime = saved.departTime;
+          if (typeof saved.routeOrigin === 'string') state.routeOrigin = Security.sanitizeTextInput(saved.routeOrigin, 30) || '하남시청';
+          if (typeof saved.routeDest === 'string') state.routeDest = Security.sanitizeTextInput(saved.routeDest, 30) || '강남역';
+          if (typeof saved.finnhubKey === 'string') state.finnhubKey = Security.sanitizeTextInput(saved.finnhubKey, 80);
+          if (typeof saved.categoryId === 'string' && NEWS_CATEGORIES.some((c) => c.id === saved.categoryId)) state.categoryId = saved.categoryId;
+          if (typeof saved.keywordFilter === 'string') state.keywordFilter = Security.sanitizeTextInput(saved.keywordFilter, 20);
+          if (saved.city && Security.isValidCoordinate(Number(saved.city.lat), Number(saved.city.lon))) {
+            state.city = {
+              id: Security.sanitizeTextInput(String(saved.city.id || 'custom'), 24) || 'custom',
+              name: Security.sanitizeTextInput(String(saved.city.name || '하남'), 20) || '하남',
+              lat: Number(saved.city.lat),
+              lon: Number(saved.city.lon)
+            };
           }
-        } catch (_) {
-          // Safe fallback to defaults
-        }
+          if (Array.isArray(saved.bookmarks)) {
+            state.bookmarks = saved.bookmarks.slice(0, 40).filter((b) => b && typeof b.title === 'string' && b.safeUrl);
+          }
+          if (Array.isArray(saved.checklist) && saved.checklist.length > 0) {
+            state.checklist = saved.checklist.slice(0, 20).map((c, idx) => ({
+              id: String(c.id || `c-${idx}`),
+              text: Security.sanitizeTextInput(String(c.text || ''), 30),
+              done: Boolean(c.done)
+            })).filter((c) => c.text.length > 0);
+          }
+          if (Array.isArray(saved.focusItems) && saved.focusItems.length === 3) {
+            state.focusItems = saved.focusItems.map((f, idx) => ({
+              id: String(f.id || `f-${idx}`),
+              text: Security.sanitizeTextInput(String(f.text || ''), 40) || DEFAULT_FOCUS[idx].text,
+              done: Boolean(f.done)
+            }));
+          }
+        } catch (_) {}
       }
 
       function savePrefs() {
@@ -645,16 +707,21 @@
             city: state.city,
             useGPS: state.useGPS,
             darkMode: state.darkMode,
+            departTime: state.departTime,
+            routeOrigin: state.routeOrigin,
+            routeDest: state.routeDest,
+            finnhubKey: state.finnhubKey,
             categoryId: state.categoryId,
-            keywordFilter: state.keywordFilter
+            keywordFilter: state.keywordFilter,
+            bookmarks: state.bookmarks.slice(0, 40),
+            checklist: state.checklist.slice(0, 20),
+            focusItems: state.focusItems.slice(0, 3)
           }));
-        } catch (_) {
-          // Ignore storage errors
-        }
+        } catch (_) {}
       }
 
       // ============================================================
-      // 4. Weather, Air Quality & News Helpers
+      // 4. Helpers
       // ============================================================
       function clampRange(v, minV, maxV) {
         const n = Number(v);
@@ -664,63 +731,54 @@
 
       function wmoInfo(code) {
         const c = Number(code);
-        if (c === 0) return { text: '맑음', icon: 'sun', color: 'text-amber-200', rain: false };
-        if (c === 1 || c === 2) return { text: '구름 조금', icon: 'cloud-sun', color: 'text-amber-100', rain: false };
-        if (c === 3) return { text: '흐림', icon: 'cloud', color: 'text-slate-100', rain: false };
-        if (c === 45 || c === 48) return { text: '안개', icon: 'cloud-fog', color: 'text-slate-200', rain: false };
-        if (c >= 51 && c <= 67) return { text: '비', icon: 'cloud-rain', color: 'text-sky-200', rain: true };
-        if (c >= 71 && c <= 77) return { text: '눈', icon: 'snowflake', color: 'text-sky-100', rain: true };
-        if (c >= 80 && c <= 82) return { text: '소나기', icon: 'cloud-drizzle', color: 'text-sky-200', rain: true };
-        if (c >= 95) return { text: '뇌우', icon: 'cloud-lightning', color: 'text-amber-200', rain: true };
-        return { text: '맑음', icon: 'sun', color: 'text-amber-200', rain: false };
+        if (c === 0) return { text: '맑음', icon: 'sun' };
+        if (c === 1 || c === 2) return { text: '구름 조금', icon: 'cloud-sun' };
+        if (c === 3) return { text: '흐림', icon: 'cloud' };
+        if (c === 45 || c === 48) return { text: '안개', icon: 'cloud-fog' };
+        if (c >= 51 && c <= 67) return { text: '비', icon: 'cloud-rain' };
+        if (c >= 71 && c <= 77) return { text: '눈', icon: 'snowflake' };
+        if (c >= 80 && c <= 82) return { text: '소나기', icon: 'cloud-drizzle' };
+        if (c >= 95) return { text: '뇌우', icon: 'cloud-lightning' };
+        return { text: '맑음', icon: 'sun' };
       }
 
-      function gradePM10(val) {
-        if (val <= 30) return { label: '좋음', cls: 'bg-sky-500/15 text-sky-500' };
-        if (val <= 80) return { label: '보통', cls: 'bg-emerald-500/15 text-emerald-500' };
-        if (val <= 150) return { label: '나쁨', cls: 'bg-amber-500/15 text-amber-500' };
-        return { label: '매우나쁨', cls: 'bg-rose-500/15 text-rose-500' };
-      }
+      function getThoughtfulOutfit(temp, gap) {
+        let base;
+        if (temp < 4) base = '롱패딩 · 목도리 추천';
+        else if (temp < 9) base = '울코트 · 경량패딩 레이어드';
+        else if (temp < 14) base = '트렌치코트 · 자켓 + 니트';
+        else if (temp < 19) base = '가디건 · 얇은 자켓';
+        else if (temp < 24) base = '셔츠 · 긴팔 티셔츠';
+        else base = '반팔 · 얇은 린넨 셔츠';
 
-      function gradePM25(val) {
-        if (val <= 15) return { label: '좋음', cls: 'bg-sky-500/15 text-sky-500' };
-        if (val <= 35) return { label: '보통', cls: 'bg-emerald-500/15 text-emerald-500' };
-        if (val <= 75) return { label: '나쁨', cls: 'bg-amber-500/15 text-amber-500' };
-        return { label: '매우나쁨', cls: 'bg-rose-500/15 text-rose-500' };
-      }
-
-      function gradeUV(val) {
-        if (val < 3) return { label: '낮음', cls: 'bg-emerald-500/15 text-emerald-500' };
-        if (val < 6) return { label: '보통', cls: 'bg-sky-500/15 text-sky-500' };
-        if (val < 8) return { label: '높음', cls: 'bg-amber-500/15 text-amber-500' };
-        return { label: '매우높음', cls: 'bg-rose-500/15 text-rose-500' };
-      }
-
-      function buildMorningTip(temp, rainProb, code, aq) {
-        const extras = [];
-        if (aq && (aq.pm10 >= 81 || aq.pm25 >= 36)) {
-          extras.push('미세먼지가 나쁨 수준이니 마스크를 챙기세요.');
-        }
-        if (rainProb >= 40 || (code >= 51 && code <= 99)) {
-          extras.push('비·눈 소식이 있어 우산이 필요해요.');
-        }
-        if (extras.length > 0) return extras.join(' ');
-        if (temp < 5) return '아침 공기가 매우 차가워요. 두꺼운 패딩과 목도리를 추천해요.';
-        if (temp < 12) return '쌀쌀한 아침이에요. 코트나 가벼운 패딩을 챙기세요.';
-        if (temp < 19) return '선선하고 쾌적해요. 가디건이나 가벼운 자켓이 잘 어울려요.';
-        if (temp < 25) return '활동하기 좋은 기온이에요. 가벼운 긴팔이나 반팔이 적당해요.';
-        return '더운 날씨예요. 시원한 옷차림과 충분한 수분 섭취를 챙기세요.';
+        if (gap >= 10) return `${base} (일교차 ${gap}° · 겉옷 필수)`;
+        return base;
       }
 
       function formatRelativeTime(dateInput) {
         const d = new Date(dateInput);
-        if (Number.isNaN(d.getTime())) return '방금 전';
+        if (Number.isNaN(d.getTime())) return '방금';
         const diffMin = Math.max(0, Math.floor((Date.now() - d.getTime()) / 60000));
-        if (diffMin < 1) return '방금 전';
+        if (diffMin < 1) return '방금';
         if (diffMin < 60) return `${diffMin}분 전`;
         const diffHr = Math.floor(diffMin / 60);
         if (diffHr < 24) return `${diffHr}시간 전`;
         return `${Math.floor(diffHr / 24)}일 전`;
+      }
+
+      function formatWeekday(isoDate, idx) {
+        if (idx === 0) return '오늘';
+        if (idx === 1) return '내일';
+        const d = new Date(`${isoDate}T00:00:00`);
+        if (Number.isNaN(d.getTime())) return isoDate;
+        const names = ['일', '월', '화', '수', '목', '금', '토'];
+        return `${d.getMonth() + 1}/${d.getDate()}(${names[d.getDay()]})`;
+      }
+
+      function buildNaverRouteURL(origin, dest) {
+        const s = encodeURIComponent(origin || '현재 위치');
+        const e = encodeURIComponent(dest || '강남역');
+        return `https://m.map.naver.com/route.nhn?menu=route&sname=${s}&ename=${e}&pathType=1`;
       }
 
       // ============================================================
@@ -728,38 +786,30 @@
       // ============================================================
       function requestGPSLocation() {
         return new Promise((resolve, reject) => {
-          if (!navigator.geolocation) {
-            reject(new Error('이 브라우저에서는 GPS를 지원하지 않습니다.'));
-            return;
-          }
+          if (!navigator.geolocation) { reject(new Error('GPS 미지원')); return; }
           navigator.geolocation.getCurrentPosition(
             (pos) => {
               const lat = Number(pos.coords.latitude);
               const lon = Number(pos.coords.longitude);
-              if (!Security.isValidCoordinate(lat, lon)) {
-                reject(new Error('유효하지 않은 좌표입니다.'));
-                return;
-              }
+              if (!Security.isValidCoordinate(lat, lon)) { reject(new Error('좌표 오류')); return; }
               resolve({ id: 'gps', name: '현재 위치', lat, lon });
             },
-            () => reject(new Error('위치 권한이 꺼져 있어 저장된 도시 날씨를 표시합니다.')),
+            () => reject(new Error('위치 권한 없음')),
             { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
           );
         });
       }
 
       async function fetchWeather(city) {
-        if (!Security.isValidCoordinate(city.lat, city.lon)) {
-          throw new Error('잘못된 좌표입니다.');
-        }
         const params = new URLSearchParams({
           latitude: city.lat.toFixed(4),
           longitude: city.lon.toFixed(4),
           current: 'temperature_2m,apparent_temperature,weather_code',
           hourly: 'temperature_2m,weather_code,precipitation_probability',
-          daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+          daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
           timezone: 'Asia/Seoul',
-          forecast_days: '2'
+          past_days: '1',
+          forecast_days: '5'
         });
 
         const data = await Security.fetchValidatedJSON(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
@@ -772,70 +822,127 @@
         const codes = Array.isArray(hourly.weather_code) ? hourly.weather_code : [];
         const probs = Array.isArray(hourly.precipitation_probability) ? hourly.precipitation_probability : [];
 
-        const nowMs = Date.now() - 3600 * 1000;
-        const upcoming = [];
-        const limit = Math.min(times.length, temps.length, codes.length, probs.length, 48);
+        const dTimes = Array.isArray(daily.time) ? daily.time : [];
+        const todayDateStr = dTimes[1] || dTimes[0] || '';
+        const yesterdayDateStr = dTimes[0] || '';
+        const nowHourStr = String(new Date().getHours()).padStart(2, '0');
 
-        for (let i = 0; i < limit && upcoming.length < 10; i += 1) {
-          const ts = Date.parse(times[i]);
-          if (Number.isNaN(ts) || ts < nowMs) continue;
-          const hourStr = String(times[i]).slice(11, 13) + '시';
-          upcoming.push({
-            hour: hourStr,
-            temp: clampRange(temps[i], -80, 70),
-            code: Number(codes[i]) || 0,
-            prob: Math.round(clampRange(probs[i], 0, 100))
+        let yesterdaySameHourTemp = null;
+        const slots = { morning: null, lunch: null, evening: null };
+
+        for (let i = 0; i < Math.min(times.length, temps.length, codes.length, probs.length); i += 1) {
+          const tStr = String(times[i]);
+          if (yesterdayDateStr && tStr === `${yesterdayDateStr}T${nowHourStr}:00`) {
+            yesterdaySameHourTemp = clampRange(temps[i], -80, 70);
+          }
+          if (todayDateStr && tStr === `${todayDateStr}T08:00`) {
+            slots.morning = { temp: clampRange(temps[i], -80, 70), code: Number(codes[i]) || 0, prob: Math.round(clampRange(probs[i], 0, 100)) };
+          }
+          if (todayDateStr && tStr === `${todayDateStr}T12:00`) {
+            slots.lunch = { temp: clampRange(temps[i], -80, 70), code: Number(codes[i]) || 0, prob: Math.round(clampRange(probs[i], 0, 100)) };
+          }
+          if (todayDateStr && tStr === `${todayDateStr}T18:00`) {
+            slots.evening = { temp: clampRange(temps[i], -80, 70), code: Number(codes[i]) || 0, prob: Math.round(clampRange(probs[i], 0, 100)) };
+          }
+        }
+
+        const dMax = Array.isArray(daily.temperature_2m_max) ? daily.temperature_2m_max : [];
+        const dMin = Array.isArray(daily.temperature_2m_min) ? daily.temperature_2m_min : [];
+        const dCode = Array.isArray(daily.weather_code) ? daily.weather_code : [];
+        const dProb = Array.isArray(daily.precipitation_probability_max) ? daily.precipitation_probability_max : [];
+        const startIdx = dTimes.length > 1 ? 1 : 0;
+        const weekly = [];
+        for (let i = startIdx; i < Math.min(dTimes.length, startIdx + 5); i += 1) {
+          weekly.push({
+            label: formatWeekday(dTimes[i], i - startIdx),
+            code: Number(dCode[i]) || 0,
+            min: clampRange(dMin[i], -80, 70),
+            max: clampRange(dMax[i], -80, 70),
+            prob: Math.round(clampRange(dProb[i], 0, 100))
           });
         }
 
         const currentTemp = clampRange(cur.temperature_2m, -80, 70);
-        const rainProb = Math.round(clampRange(Array.isArray(daily.precipitation_probability_max) ? daily.precipitation_probability_max[0] : 0, 0, 100));
-        const weatherCode = Number(cur.weather_code) || 0;
-
         return {
           cityName: city.name,
           currentTemp,
           apparentTemp: clampRange(cur.apparent_temperature, -80, 70),
-          minTemp: clampRange(Array.isArray(daily.temperature_2m_min) ? daily.temperature_2m_min[0] : currentTemp, -80, 70),
-          maxTemp: clampRange(Array.isArray(daily.temperature_2m_max) ? daily.temperature_2m_max[0] : currentTemp, -80, 70),
-          weatherCode,
-          rainProb,
-          hourly: upcoming
+          tempDiffYesterday: yesterdaySameHourTemp !== null ? Math.round(currentTemp - yesterdaySameHourTemp) : null,
+          minTemp: weekly[0] ? weekly[0].min : currentTemp,
+          maxTemp: weekly[0] ? weekly[0].max : currentTemp,
+          weatherCode: Number(cur.weather_code) || 0,
+          rainProb: weekly[0] ? weekly[0].prob : 0,
+          slots,
+          weekly
         };
       }
 
       async function fetchAirQuality(city) {
-        if (!Security.isValidCoordinate(city.lat, city.lon)) {
-          throw new Error('잘못된 좌표입니다.');
-        }
         const params = new URLSearchParams({
           latitude: city.lat.toFixed(4),
           longitude: city.lon.toFixed(4),
-          current: 'pm10,pm2_5,uv_index',
+          current: 'pm10,pm2_5',
           timezone: 'Asia/Seoul'
         });
         const data = await Security.fetchValidatedJSON(`https://air-quality-api.open-meteo.com/v1/air-quality?${params.toString()}`);
         const cur = data.current || {};
         return {
           pm10: Math.round(clampRange(cur.pm10, 0, 1000)),
-          pm25: Math.round(clampRange(cur.pm2_5, 0, 1000)),
-          uv: Number(clampRange(cur.uv_index, 0, 20).toFixed(1))
+          pm25: Math.round(clampRange(cur.pm2_5, 0, 1000))
         };
       }
 
+      async function fetchExchangeRates() {
+        const data = await Security.fetchValidatedJSON('https://api.frankfurter.dev/v1/latest?base=KRW&symbols=USD,JPY,EUR');
+        const rates = data.rates || {};
+        return {
+          date: Security.sanitizeTextInput(String(data.date || ''), 16),
+          usd: rates.USD > 0 ? 1 / Number(rates.USD) : null,
+          jpy100: rates.JPY > 0 ? 100 / Number(rates.JPY) : null
+        };
+      }
+
+      async function fetchBTC() {
+        const data = await Security.fetchValidatedJSON('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
+        const price = Number(data.lastPrice);
+        const pct = Number(data.priceChangePercent);
+        if (!Number.isFinite(price)) throw new Error('BTC 오류');
+        return { price, pct: Number.isFinite(pct) ? pct : 0 };
+      }
+
+      async function fetchUSStocks(apiKey) {
+        if (!apiKey) return [];
+        const targets = [
+          { symbol: 'SPY', label: 'S&P500' },
+          { symbol: 'QQQ', label: '나스닥100' },
+          { symbol: 'NVDA', label: '엔비디아' }
+        ];
+        const results = await Promise.allSettled(
+          targets.map(async (t) => {
+            const url = `https://finnhub.io/api/v1/quote?symbol=${t.symbol}&token=${encodeURIComponent(apiKey)}`;
+            const q = await Security.fetchValidatedJSON(url);
+            const price = Number(q.c);
+            const pct = Number(q.dp);
+            if (!Number.isFinite(price) || price <= 0) throw new Error('시세 없음');
+            return { label: t.label, price, pct: Number.isFinite(pct) ? pct : 0 };
+          })
+        );
+        return results.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+      }
+
       async function fetchNews(categoryId) {
-        const cat = NEWS_CATEGORIES.find((c) => c.id === categoryId) || NEWS_CATEGORIES[0];
+        const cat = NEWS_CATEGORIES.find((c) => c.id === categoryId && c.rss) || NEWS_CATEGORIES[0];
         const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(cat.rss)}`;
         const data = await Security.fetchValidatedJSON(apiUrl);
         const items = Array.isArray(data.items) ? data.items.slice(0, 15) : [];
-
         return items.map((item) => {
           const title = Security.stripHTMLSafely(item.title || '', 160);
-          const summary = Security.stripHTMLSafely(item.description || '', 220);
+          const summary = Security.stripHTMLSafely(item.description || '', 340);
           const safeUrl = Security.validatedExternalURL(item.link || '');
           return {
             title: title || '제목 없음',
-            summary: summary && summary !== title ? summary : '원문 기사에서 자세한 내용을 확인하세요.',
+            summary: summary && summary !== title ? summary : '',
+            source: cat.source,
             safeUrl,
             pubDate: item.pubDate || ''
           };
@@ -843,228 +950,454 @@
       }
 
       // ============================================================
-      // 6. Safe DOM Rendering (Zero innerHTML for API data)
+      // 6. Safe DOM Rendering
       // ============================================================
       function showToast(message) {
         const toast = document.getElementById('toast');
-        if (!toast) return;
         toast.textContent = message;
         toast.classList.remove('hidden');
         clearTimeout(showToast._timer);
-        showToast._timer = setTimeout(() => {
-          toast.classList.add('hidden');
-        }, 2600);
+        showToast._timer = setTimeout(() => toast.classList.add('hidden'), 2200);
       }
 
       function showBanner(message) {
-        const banner = document.getElementById('status-banner');
-        const textEl = document.getElementById('status-banner-text');
-        if (!banner || !textEl) return;
-        textEl.textContent = message;
-        banner.classList.remove('hidden');
+        document.getElementById('status-banner-text').textContent = message;
+        document.getElementById('status-banner').classList.remove('hidden');
       }
 
       function hideBanner() {
-        const banner = document.getElementById('status-banner');
-        if (banner) banner.classList.add('hidden');
+        document.getElementById('status-banner').classList.add('hidden');
+      }
+
+      function applyTheme() {
+        const root = document.documentElement;
+        const themeMeta = document.getElementById('theme-color-meta');
+        if (state.darkMode) {
+          root.classList.add('dark');
+          if (themeMeta) themeMeta.setAttribute('content', '#0c0c0e');
+        } else {
+          root.classList.remove('dark');
+          if (themeMeta) themeMeta.setAttribute('content', '#f6f6f7');
+        }
+      }
+
+      function switchTab(tabName) {
+        state.activeTab = tabName;
+        for (const t of ['home', 'news', 'life']) {
+          document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tabName);
+        }
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
+          const active = btn.getAttribute('data-tab') === tabName;
+          btn.classList.toggle('font-semibold', active);
+          btn.classList.toggle('t3', !active);
+          btn.classList.toggle('font-medium', !active);
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function renderRouteCard() {
+        document.getElementById('route-label').textContent = `${state.routeOrigin} → ${state.routeDest}`;
+        document.getElementById('naver-route-link').href = buildNaverRouteURL(state.routeOrigin, state.routeDest);
+      }
+
+      function renderCommuteCountdown() {
+        const now = new Date();
+        const [dh, dm] = state.departTime.split(':').map(Number);
+        const target = new Date(now);
+        target.setHours(Number.isFinite(dh) ? dh : 8, Number.isFinite(dm) ? dm : 0, 0, 0);
+        const diffMin = Math.round((target.getTime() - now.getTime()) / 60000);
+        const el = document.getElementById('commute-countdown');
+        if (diffMin > 0 && diffMin <= 180) {
+          const h = Math.floor(diffMin / 60);
+          const m = diffMin % 60;
+          el.textContent = h > 0 ? `출발 ${h}시간 ${m}분 전` : `출발 ${m}분 전`;
+        } else {
+          el.textContent = `출발 ${state.departTime}`;
+        }
       }
 
       function renderHeader() {
         const now = new Date();
-        const hour = now.getHours();
-        const greeting = hour >= 5 && hour < 12
-          ? '좋은 아침이에요'
-          : (hour >= 12 && hour < 18 ? '오늘의 브리핑' : '저녁 브리핑');
-        const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-        const dateStr = `${now.getMonth() + 1}월 ${now.getDate()}일 ${days[now.getDay()]}`;
-
-        document.getElementById('greeting-label').textContent = greeting;
-        document.getElementById('date-label').textContent = dateStr;
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        document.getElementById('date-label').textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+        document.getElementById('city-header').textContent = state.city.name;
+        renderCommuteCountdown();
       }
 
-      function renderAirQuality() {
+      function renderPracticalDetails() {
+        const w = state.weather;
         const aq = state.airQuality;
-        if (!aq) return;
+        if (w) {
+          const refTemp = w.slots.morning ? w.slots.morning.temp : w.currentTemp;
+          const gap = Math.round(w.maxTemp - w.minTemp);
+          document.getElementById('outfit-detail').textContent = getThoughtfulOutfit(refTemp, gap);
+        }
 
-        const g10 = gradePM10(aq.pm10);
-        const g25 = gradePM25(aq.pm25);
-        const gUV = gradeUV(aq.uv);
-
-        document.getElementById('pm10-value').textContent = `${aq.pm10}`;
-        const pm10Badge = document.getElementById('pm10-badge');
-        pm10Badge.textContent = g10.label;
-        pm10Badge.className = `text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${g10.cls}`;
-
-        document.getElementById('pm25-value').textContent = `${aq.pm25}`;
-        const pm25Badge = document.getElementById('pm25-badge');
-        pm25Badge.textContent = g25.label;
-        pm25Badge.className = `text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${g25.cls}`;
-
-        document.getElementById('uv-value').textContent = `${aq.uv}`;
-        const uvBadge = document.getElementById('uv-badge');
-        uvBadge.textContent = gUV.label;
-        uvBadge.className = `text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${gUV.cls}`;
+        const parts = [];
+        if (w) {
+          const maxRain = Math.max(
+            w.rainProb,
+            w.slots.morning ? w.slots.morning.prob : 0,
+            w.slots.evening ? w.slots.evening.prob : 0
+          );
+          if (maxRain >= 50) parts.push(`우산 필수 (${maxRain}%)`);
+          else if (maxRain >= 30) parts.push(`접이식 우산 추천 (${maxRain}%)`);
+          else parts.push(`우산 불필요`);
+        }
+        if (aq) {
+          const grade = aq.pm25 <= 15 ? '좋음' : (aq.pm25 <= 35 ? '보통' : '나쁨·마스크 권장');
+          parts.push(`초미세 ${grade} (${aq.pm25})`);
+        }
+        document.getElementById('umbrella-aq-detail').textContent = parts.length ? parts.join(' · ') : '--';
       }
 
       function renderWeather() {
         const w = state.weather;
         if (!w) return;
-
         const info = wmoInfo(w.weatherCode);
-        const hero = document.getElementById('weather-hero');
-        hero.classList.remove('hero-sky-day', 'hero-sky-rain', 'hero-sky-night');
-        const hour = new Date().getHours();
-        if (info.rain) {
-          hero.classList.add('hero-sky-rain');
-        } else if (hour >= 20 || hour < 6) {
-          hero.classList.add('hero-sky-night');
-        } else {
-          hero.classList.add('hero-sky-day');
-        }
 
-        document.getElementById('city-name').textContent = w.cityName;
-        const gpsBadge = document.getElementById('gps-badge');
-        if (state.useGPS) gpsBadge.classList.remove('hidden');
-        else gpsBadge.classList.add('hidden');
+        document.getElementById('city-header').textContent = w.cityName;
+        document.getElementById('weekly-city-badge').textContent = w.cityName;
+
+        const diffEl = document.getElementById('yesterday-diff');
+        if (w.tempDiffYesterday === null) diffEl.textContent = '실시간';
+        else if (w.tempDiffYesterday > 0) diffEl.textContent = `어제보다 +${w.tempDiffYesterday}°`;
+        else if (w.tempDiffYesterday < 0) diffEl.textContent = `어제보다 ${w.tempDiffYesterday}°`;
+        else diffEl.textContent = '어제와 같음';
 
         document.getElementById('current-temp').textContent = `${Math.round(w.currentTemp)}°`;
         document.getElementById('weather-condition').textContent = info.text;
         document.getElementById('feels-like').textContent =
           `체감 ${Math.round(w.apparentTemp)}° · 최고 ${Math.round(w.maxTemp)}° / 최저 ${Math.round(w.minTemp)}°`;
-        document.getElementById('rain-prob').textContent = `강수 ${w.rainProb}%`;
-        document.getElementById('morning-tip').textContent =
-          buildMorningTip(w.currentTemp, w.rainProb, w.weatherCode, state.airQuality);
+
+        const fillSlot = (prefix, slot) => {
+          document.getElementById(`slot-${prefix}-temp`).textContent = slot ? `${Math.round(slot.temp)}°` : '--°';
+          document.getElementById(`slot-${prefix}-rain`).textContent = slot ? `강수 ${slot.prob}%` : '강수 --%';
+          const iconBox = document.getElementById(`slot-${prefix}-icon`);
+          iconBox.replaceChildren();
+          const iEl = document.createElement('i');
+          iEl.setAttribute('data-lucide', slot ? wmoInfo(slot.code).icon : 'sun');
+          iEl.className = 'w-4 h-4';
+          iconBox.appendChild(iEl);
+        };
+        fillSlot('morning', w.slots.morning);
+        fillSlot('lunch', w.slots.lunch);
+        fillSlot('evening', w.slots.evening);
 
         const iconWrap = document.getElementById('weather-icon-wrap');
         iconWrap.replaceChildren();
         const iconEl = document.createElement('i');
         iconEl.setAttribute('data-lucide', info.icon);
-        iconEl.className = `w-8 h-8 ${info.color}`;
+        iconEl.className = 'w-6 h-6';
         iconWrap.appendChild(iconEl);
 
-        const hourlyStrip = document.getElementById('hourly-strip');
-        hourlyStrip.replaceChildren();
-        for (const item of w.hourly) {
-          const itemInfo = wmoInfo(item.code);
-          const card = document.createElement('div');
-          card.className = 'ios-card shrink-0 w-16 py-3 px-2 flex flex-col items-center gap-1.5';
-
-          const hLabel = document.createElement('span');
-          hLabel.className = 'text-[11px] font-medium text-muted';
-          hLabel.textContent = item.hour;
-
-          const hIcon = document.createElement('i');
-          hIcon.setAttribute('data-lucide', itemInfo.icon);
-          hIcon.className = 'w-5 h-5 text-blue-500';
-
-          const hTemp = document.createElement('span');
-          hTemp.className = 'text-sm font-bold';
-          hTemp.textContent = `${Math.round(item.temp)}°`;
-
-          const hProb = document.createElement('span');
-          hProb.className = 'text-[10px] font-semibold text-sky-500';
-          hProb.textContent = `${item.prob}%`;
-
-          card.append(hLabel, hIcon, hTemp, hProb);
-          hourlyStrip.appendChild(card);
+        const weeklyList = document.getElementById('weekly-list');
+        weeklyList.replaceChildren();
+        for (const day of w.weekly) {
+          const dInfo = wmoInfo(day.code);
+          const row = document.createElement('div');
+          row.className = 'py-2.5 flex items-center justify-between text-xs';
+          const left = document.createElement('span');
+          left.className = 'w-16 font-semibold';
+          left.textContent = day.label;
+          const mid = document.createElement('div');
+          mid.className = 'flex items-center gap-1.5 flex-1 t2';
+          const dIcon = document.createElement('i');
+          dIcon.setAttribute('data-lucide', dInfo.icon);
+          dIcon.className = 'w-3.5 h-3.5';
+          const dProb = document.createElement('span');
+          dProb.textContent = `강수 ${day.prob}%`;
+          mid.append(dIcon, dProb);
+          const right = document.createElement('div');
+          right.className = 'flex items-center gap-2.5 font-semibold';
+          const minEl = document.createElement('span');
+          minEl.className = 't3 w-7 text-right';
+          minEl.textContent = `${Math.round(day.min)}°`;
+          const maxEl = document.createElement('span');
+          maxEl.className = 'w-7 text-right';
+          maxEl.textContent = `${Math.round(day.max)}°`;
+          right.append(minEl, maxEl);
+          row.append(left, mid, right);
+          weeklyList.appendChild(row);
         }
 
-        if (state.updatedAt) {
-          const hh = String(state.updatedAt.getHours()).padStart(2, '0');
-          const mm = String(state.updatedAt.getMinutes()).padStart(2, '0');
-          document.getElementById('updated-time').textContent = `${hh}:${mm} 기준`;
-        }
+        renderPracticalDetails();
         if (window.lucide) window.lucide.createIcons();
+      }
+
+      function renderMarket() {
+        if (state.fx) {
+          const fmt = (n) => (n ? `${Math.round(n).toLocaleString('ko-KR')}원` : '--');
+          document.getElementById('home-fx-usd').textContent = fmt(state.fx.usd);
+          document.getElementById('home-fx-jpy').textContent = fmt(state.fx.jpy100);
+          document.getElementById('home-fx-date').textContent = state.fx.date || '환율';
+        }
+        if (state.btc) {
+          document.getElementById('home-btc-price').textContent = `$${Math.round(state.btc.price).toLocaleString('en-US')}`;
+          const pctEl = document.getElementById('home-btc-change');
+          const sign = state.btc.pct >= 0 ? '+' : '';
+          pctEl.textContent = `${sign}${state.btc.pct.toFixed(2)}%`;
+          pctEl.className = `text-[10px] font-semibold mt-0.5 ${state.btc.pct >= 0 ? 'text-rose-500' : 'text-blue-500'}`;
+        }
+
+        const stockRow = document.getElementById('stock-quotes-row');
+        stockRow.replaceChildren();
+        if (state.stocks.length > 0) {
+          stockRow.classList.remove('hidden');
+          for (const st of state.stocks) {
+            const box = document.createElement('div');
+            box.className = 'subtle rounded-xl p-2.5';
+            const lbl = document.createElement('p');
+            lbl.className = 'text-[10px] font-semibold t2';
+            lbl.textContent = st.label;
+            const pr = document.createElement('p');
+            pr.className = 'text-sm font-bold mt-1';
+            pr.textContent = `$${st.price.toFixed(1)}`;
+            const ch = document.createElement('p');
+            const sign = st.pct >= 0 ? '+' : '';
+            ch.className = `text-[10px] font-semibold mt-0.5 ${st.pct >= 0 ? 'text-rose-500' : 'text-blue-500'}`;
+            ch.textContent = `${sign}${st.pct.toFixed(2)}%`;
+            box.append(lbl, pr, ch);
+            stockRow.appendChild(box);
+          }
+        } else {
+          stockRow.classList.add('hidden');
+        }
+      }
+
+      function isBookmarked(article) {
+        return Boolean(article.safeUrl && state.bookmarks.some((b) => b.safeUrl === article.safeUrl));
+      }
+
+      function toggleBookmark(article) {
+        if (!article || !article.safeUrl) return;
+        const idx = state.bookmarks.findIndex((b) => b.safeUrl === article.safeUrl);
+        if (idx >= 0) {
+          state.bookmarks.splice(idx, 1);
+          showToast('북마크 해제');
+        } else {
+          state.bookmarks.unshift({
+            title: article.title,
+            summary: article.summary,
+            source: article.source,
+            safeUrl: article.safeUrl,
+            pubDate: article.pubDate
+          });
+          showToast('북마크 저장');
+        }
+        savePrefs();
+        updateReaderBookmarkUI();
+        if (state.categoryId === 'saved') renderNews();
+      }
+
+      function updateReaderBookmarkUI() {
+        const icon = document.getElementById('reader-bookmark-icon');
+        if (!icon || !state.activeArticle) return;
+        icon.classList.toggle('fill-current', isBookmarked(state.activeArticle));
+      }
+
+      function openQuickReader(article) {
+        state.activeArticle = article;
+        document.getElementById('reader-source').textContent = article.source || '뉴스';
+        document.getElementById('reader-time').textContent = formatRelativeTime(article.pubDate);
+        document.getElementById('reader-title').textContent = article.title;
+        const sumEl = document.getElementById('reader-summary');
+        sumEl.textContent = article.summary || '';
+        sumEl.classList.toggle('hidden', !article.summary);
+
+        const directLink = document.getElementById('reader-direct-link');
+        if (article.safeUrl) {
+          directLink.href = article.safeUrl;
+          directLink.classList.remove('opacity-40', 'pointer-events-none');
+        } else {
+          directLink.removeAttribute('href');
+          directLink.classList.add('opacity-40', 'pointer-events-none');
+        }
+
+        updateReaderBookmarkUI();
+        const modal = document.getElementById('reader-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function closeQuickReader() {
+        const modal = document.getElementById('reader-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      function createNewsRow(item) {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'w-full text-left py-3.5 first:pt-2 last:pb-2 active:opacity-60 transition block';
+        row.addEventListener('click', () => openQuickReader(item));
+
+        const meta = document.createElement('div');
+        meta.className = 'flex items-center gap-1.5 text-[11px] t3 mb-1';
+        meta.textContent = `${item.source || '뉴스'} · ${formatRelativeTime(item.pubDate)}`;
+
+        const title = document.createElement('h3');
+        title.className = 'text-[14px] font-semibold leading-snug line-clamp-2';
+        title.textContent = item.title;
+
+        row.append(meta, title);
+        return row;
       }
 
       function renderCategoryChips() {
         const container = document.getElementById('category-chips');
         container.replaceChildren();
-
         for (const cat of NEWS_CATEGORIES) {
           const btn = document.createElement('button');
           btn.type = 'button';
           const active = state.categoryId === cat.id;
-          btn.className = active
-            ? 'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white shadow-xs transition'
-            : 'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold ios-icon-btn transition';
-          btn.textContent = cat.label;
+          btn.className = `shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition ${active ? 'chip-active' : 'chip-idle'}`;
+          btn.textContent = cat.id === 'saved' && state.bookmarks.length > 0 ? `북마크 ${state.bookmarks.length}` : cat.label;
           btn.addEventListener('click', () => {
             if (state.categoryId === cat.id) return;
             state.categoryId = cat.id;
             savePrefs();
             renderCategoryChips();
-            refreshNewsOnly();
+            if (cat.id === 'saved') renderNews();
+            else refreshNewsOnly();
           });
           container.appendChild(btn);
         }
       }
 
       function renderNews() {
-        const container = document.getElementById('news-list');
-        container.replaceChildren();
+        const fullContainer = document.getElementById('news-list');
+        const homePreview = document.getElementById('home-news-preview');
+        fullContainer.replaceChildren();
+        homePreview.replaceChildren();
 
-        const badge = document.getElementById('news-source-badge');
-        badge.textContent = state.keywordFilter
-          ? `필터: #${state.keywordFilter}`
-          : (state.newsLive ? '실시간 HTTPS' : '오프라인 안내');
-
+        const sourceList = state.categoryId === 'saved' ? state.bookmarks : state.news;
         const filter = state.keywordFilter.toLowerCase();
         const filtered = filter
-          ? state.news.filter((n) => n.title.toLowerCase().includes(filter) || n.summary.toLowerCase().includes(filter))
-          : state.news;
+          ? sourceList.filter((n) => n.title.toLowerCase().includes(filter) || (n.summary || '').toLowerCase().includes(filter))
+          : sourceList;
 
         if (filtered.length === 0) {
           const empty = document.createElement('div');
-          empty.className = 'ios-card p-6 text-center text-xs text-muted';
-          empty.textContent = filter
-            ? `"${state.keywordFilter}" 키워드와 일치하는 헤드라인이 없습니다. 설정에서 필터를 비워 보세요.`
-            : '불러온 헤드라인이 없습니다. 상단 새로고침 버튼을 눌러 다시 시도해 주세요.';
-          container.appendChild(empty);
-          return;
+          empty.className = 'py-6 text-center text-xs t3';
+          empty.textContent = state.categoryId === 'saved' ? '저장한 기사가 없습니다.' : '기사가 없습니다.';
+          fullContainer.appendChild(empty);
+        } else {
+          for (const item of filtered.slice(0, 12)) fullContainer.appendChild(createNewsRow(item));
         }
 
-        for (const item of filtered.slice(0, 10)) {
-          const wrapper = item.safeUrl ? document.createElement('a') : document.createElement('div');
-          if (item.safeUrl) {
-            wrapper.href = item.safeUrl;
-            wrapper.target = '_blank';
-            wrapper.rel = 'noopener noreferrer';
-          }
-          wrapper.className = 'ios-card block p-4 active:scale-[0.99] transition';
-
-          const title = document.createElement('h3');
-          title.className = 'text-sm font-bold leading-snug line-clamp-2';
-          title.textContent = item.title;
-
-          const meta = document.createElement('div');
-          meta.className = 'flex items-center justify-between mt-2.5 text-[11px] text-muted';
-
-          const timeEl = document.createElement('span');
-          timeEl.textContent = formatRelativeTime(item.pubDate);
-
-          const linkState = document.createElement('span');
-          linkState.className = item.safeUrl ? 'inline-flex items-center gap-1 text-blue-500 font-medium' : 'text-muted';
-          linkState.textContent = item.safeUrl ? '안전 링크로 읽기 ↗' : '링크 차단됨';
-
-          meta.append(timeEl, linkState);
-          wrapper.append(title, meta);
-          container.appendChild(wrapper);
+        const homeItems = state.news.slice(0, 5);
+        if (homeItems.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'py-5 text-center text-xs t3';
+          empty.textContent = '기사를 불러오는 중입니다.';
+          homePreview.appendChild(empty);
+        } else {
+          for (const item of homeItems) homePreview.appendChild(createNewsRow(item));
         }
       }
 
+      function renderWorkFocus() {
+        const container = document.getElementById('focus-list');
+        container.replaceChildren();
+        const doneCount = state.focusItems.filter((f) => f.done).length;
+        document.getElementById('focus-progress').textContent = `${doneCount}/3`;
+
+        state.focusItems.forEach((item, idx) => {
+          const row = document.createElement('div');
+          row.className = 'subtle rounded-xl px-3 py-2.5 flex items-center gap-2.5';
+          const checkBtn = document.createElement('button');
+          checkBtn.type = 'button';
+          checkBtn.setAttribute('aria-label', `할 일 ${idx + 1}`);
+          checkBtn.addEventListener('click', () => {
+            item.done = !item.done;
+            savePrefs();
+            renderWorkFocus();
+          });
+          const icon = document.createElement('i');
+          icon.setAttribute('data-lucide', item.done ? 'check-circle-2' : 'circle');
+          icon.className = item.done ? 'w-4 h-4' : 'w-4 h-4 t3';
+          checkBtn.appendChild(icon);
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.maxLength = 40;
+          input.value = item.text;
+          input.className = item.done
+            ? 'flex-1 bg-transparent text-xs line-through t3 focus:outline-none'
+            : 'flex-1 bg-transparent text-xs font-medium focus:outline-none';
+          input.addEventListener('change', (e) => {
+            const clean = Security.sanitizeTextInput(e.target.value, 40);
+            item.text = clean || DEFAULT_FOCUS[idx].text;
+            e.target.value = item.text;
+            savePrefs();
+          });
+          row.append(checkBtn, input);
+          container.appendChild(row);
+        });
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function renderChecklist() {
+        const container = document.getElementById('checklist-items');
+        container.replaceChildren();
+        const doneCount = state.checklist.filter((c) => c.done).length;
+        document.getElementById('checklist-progress').textContent = `${doneCount}/${state.checklist.length}`;
+
+        for (const item of state.checklist) {
+          const row = document.createElement('div');
+          row.className = 'subtle rounded-xl px-3 py-2.5 flex items-center justify-between gap-2';
+          const leftBtn = document.createElement('button');
+          leftBtn.type = 'button';
+          leftBtn.className = 'flex items-center gap-2.5 flex-1 text-left min-w-0';
+          leftBtn.addEventListener('click', () => {
+            item.done = !item.done;
+            savePrefs();
+            renderChecklist();
+          });
+          const checkIcon = document.createElement('i');
+          checkIcon.setAttribute('data-lucide', item.done ? 'check-circle-2' : 'circle');
+          checkIcon.className = item.done ? 'w-4 h-4 shrink-0' : 'w-4 h-4 t3 shrink-0';
+          const label = document.createElement('span');
+          label.className = item.done ? 'text-xs line-through t3 truncate' : 'text-xs font-medium truncate';
+          label.textContent = item.text;
+          leftBtn.append(checkIcon, label);
+
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 't3 p-1';
+          delBtn.setAttribute('aria-label', '삭제');
+          delBtn.addEventListener('click', () => {
+            state.checklist = state.checklist.filter((c) => c.id !== item.id);
+            savePrefs();
+            renderChecklist();
+          });
+          const xIcon = document.createElement('i');
+          xIcon.setAttribute('data-lucide', 'x');
+          xIcon.className = 'w-3.5 h-3.5';
+          delBtn.appendChild(xIcon);
+
+          row.append(leftBtn, delBtn);
+          container.appendChild(row);
+        }
+        if (window.lucide) window.lucide.createIcons();
+      }
+
       function renderLoadingSkeletons() {
-        const newsList = document.getElementById('news-list');
-        newsList.replaceChildren();
-        for (let i = 0; i < 4; i += 1) {
-          const sk = document.createElement('div');
-          sk.className = 'ios-card p-4 space-y-2 skeleton';
-          const line1 = document.createElement('div');
-          line1.className = 'h-3.5 bg-slate-400/25 rounded w-11/12';
-          const line2 = document.createElement('div');
-          line2.className = 'h-3 bg-slate-400/15 rounded w-1/3';
-          sk.append(line1, line2);
-          newsList.appendChild(sk);
+        for (const id of ['news-list', 'home-news-preview']) {
+          const el = document.getElementById(id);
+          el.replaceChildren();
+          for (let i = 0; i < 3; i += 1) {
+            const sk = document.createElement('div');
+            sk.className = 'py-3.5 space-y-2 skeleton';
+            const l1 = document.createElement('div');
+            l1.className = 'h-2.5 bg-zinc-400/20 rounded w-1/4';
+            const l2 = document.createElement('div');
+            l2.className = 'h-3.5 bg-zinc-400/25 rounded w-11/12';
+            sk.append(l1, l2);
+            el.appendChild(sk);
+          }
         }
       }
 
@@ -1073,20 +1406,7 @@
       // ============================================================
       async function refreshNewsOnly() {
         renderLoadingSkeletons();
-        try {
-          state.news = await fetchNews(state.categoryId);
-          state.newsLive = true;
-        } catch (_) {
-          state.newsLive = false;
-          state.news = [
-            {
-              title: '실시간 뉴스 피드 연결이 지연되고 있습니다',
-              summary: '네트워크 상태를 확인한 뒤 상단 새로고침 버튼을 눌러 다시 시도해 주세요.',
-              safeUrl: null,
-              pubDate: new Date().toISOString()
-            }
-          ];
-        }
+        try { state.news = await fetchNews(state.categoryId); } catch (_) { state.news = []; }
         renderNews();
       }
 
@@ -1103,75 +1423,85 @@
             targetCity = await requestGPSLocation();
             state.city = targetCity;
             savePrefs();
-          } catch (err) {
-            showBanner(err.message);
+          } catch (_) {
+            showBanner('위치 권한이 꺼져 있어 저장된 도시를 표시합니다.');
           }
         }
 
-        const [weatherRes, aqRes, newsRes] = await Promise.allSettled([
+        const feedCat = state.categoryId === 'saved' ? 'hk-econ' : state.categoryId;
+        const [weatherRes, aqRes, fxRes, btcRes, stockRes, newsRes] = await Promise.allSettled([
           fetchWeather(targetCity),
           fetchAirQuality(targetCity),
-          fetchNews(state.categoryId)
+          fetchExchangeRates(),
+          fetchBTC(),
+          fetchUSStocks(state.finnhubKey),
+          fetchNews(feedCat)
         ]);
 
         if (aqRes.status === 'fulfilled') {
           state.airQuality = aqRes.value;
-          renderAirQuality();
+          renderPracticalDetails();
         }
+        if (fxRes.status === 'fulfilled') state.fx = fxRes.value;
+        if (btcRes.status === 'fulfilled') state.btc = btcRes.value;
+        if (stockRes.status === 'fulfilled') state.stocks = stockRes.value;
+        renderMarket();
 
         if (weatherRes.status === 'fulfilled') {
           state.weather = weatherRes.value;
-          state.updatedAt = new Date();
           renderWeather();
         } else {
-          showBanner('날씨 정보를 불러오지 못했습니다. 네트워크를 확인해 주세요.');
+          showBanner('네트워크 연결을 확인해 주세요.');
         }
 
-        if (newsRes.status === 'fulfilled') {
-          state.news = newsRes.value;
-          state.newsLive = true;
-        } else {
-          state.newsLive = false;
-          state.news = [
-            {
-              title: '실시간 뉴스 피드 연결이 지연되고 있습니다',
-              summary: '네트워크 상태를 확인한 뒤 상단 새로고침 버튼을 눌러 다시 시도해 주세요.',
-              safeUrl: null,
-              pubDate: new Date().toISOString()
-            }
-          ];
-        }
-
+        if (newsRes.status === 'fulfilled') state.news = newsRes.value;
         renderNews();
         state.isLoading = false;
       }
 
       // ============================================================
-      // 8. Modals & Controls Wiring
+      // 8. Controls Wiring
       // ============================================================
       function syncSettingsUI() {
-        const toggleBtn = document.getElementById('gps-toggle-btn');
-        const knob = document.getElementById('gps-toggle-knob');
+        const setToggle = (btnId, knobId, on) => {
+          const btn = document.getElementById(btnId);
+          const knob = document.getElementById(knobId);
+          btn.setAttribute('aria-checked', String(on));
+          btn.classList.toggle('bg-zinc-900', on && !state.darkMode);
+          btn.classList.toggle('bg-blue-500', on && state.darkMode);
+          btn.classList.toggle('bg-zinc-400', !on);
+          knob.classList.toggle('translate-x-6', on);
+          knob.classList.toggle('translate-x-1', !on);
+        };
+        setToggle('theme-toggle-btn', 'theme-toggle-knob', state.darkMode);
+        setToggle('gps-toggle-btn', 'gps-toggle-knob', state.useGPS);
+
         const manualWrap = document.getElementById('manual-city-wrap');
-        toggleBtn.setAttribute('aria-checked', String(state.useGPS));
-        if (state.useGPS) {
-          toggleBtn.classList.remove('bg-slate-400');
-          toggleBtn.classList.add('bg-blue-600');
-          knob.classList.remove('translate-x-1');
-          knob.classList.add('translate-x-6');
-          manualWrap.classList.add('opacity-50', 'pointer-events-none');
-        } else {
-          toggleBtn.classList.add('bg-slate-400');
-          toggleBtn.classList.remove('bg-blue-600');
-          knob.classList.add('translate-x-1');
-          knob.classList.remove('translate-x-6');
-          manualWrap.classList.remove('opacity-50', 'pointer-events-none');
-        }
+        manualWrap.classList.toggle('opacity-40', state.useGPS);
+        manualWrap.classList.toggle('pointer-events-none', state.useGPS);
 
         const select = document.getElementById('city-select');
         const exists = CITY_PRESETS.some((c) => c.id === state.city.id);
         select.value = exists ? state.city.id : CITY_PRESETS[0].id;
         document.getElementById('custom-keyword-input').value = state.keywordFilter;
+        document.getElementById('depart-time-input').value = state.departTime;
+        document.getElementById('route-origin-input').value = state.routeOrigin;
+        document.getElementById('route-dest-input').value = state.routeDest;
+        document.getElementById('finnhub-key-input').value = state.finnhubKey;
+        document.getElementById('security-stats').textContent = `HTTPS 검증 · 차단 ${Security.blockedLinksCount}건`;
+      }
+
+      function openSettings() {
+        syncSettingsUI();
+        const modal = document.getElementById('settings-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeSettings() {
+        const modal = document.getElementById('settings-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
       }
 
       function initControls() {
@@ -1184,61 +1514,66 @@
           select.appendChild(opt);
         }
 
+        document.querySelectorAll('.tab-btn').forEach((btn) => {
+          btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+        });
+        document.getElementById('home-more-news-btn').addEventListener('click', () => switchTab('news'));
+        document.getElementById('edit-route-btn').addEventListener('click', openSettings);
+        document.getElementById('settings-btn').addEventListener('click', openSettings);
+        document.getElementById('settings-close-btn').addEventListener('click', closeSettings);
+        document.getElementById('settings-modal').addEventListener('click', (e) => {
+          if (e.target.id === 'settings-modal') closeSettings();
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+          showToast('새로고침 중');
+          refreshAll();
+        });
+        document.getElementById('status-banner-close').addEventListener('click', hideBanner);
+
+        const readerModal = document.getElementById('reader-modal');
+        document.getElementById('reader-close-btn').addEventListener('click', closeQuickReader);
+        readerModal.addEventListener('click', (e) => { if (e.target === readerModal) closeQuickReader(); });
+        document.getElementById('reader-bookmark-btn').addEventListener('click', () => {
+          if (state.activeArticle) toggleBookmark(state.activeArticle);
+        });
+
+        document.getElementById('save-route-btn').addEventListener('click', () => {
+          const o = Security.sanitizeTextInput(document.getElementById('route-origin-input').value, 30);
+          const d = Security.sanitizeTextInput(document.getElementById('route-dest-input').value, 30);
+          if (!o || !d) return;
+          state.routeOrigin = o;
+          state.routeDest = d;
+          savePrefs();
+          renderRouteCard();
+          showToast('경로 저장됨');
+        });
+
+        document.getElementById('save-finnhub-btn').addEventListener('click', () => {
+          state.finnhubKey = Security.sanitizeTextInput(document.getElementById('finnhub-key-input').value, 80);
+          savePrefs();
+          showToast(state.finnhubKey ? '미국 증시 키 저장됨' : '키 해제됨');
+          refreshAll();
+        });
+
+        document.getElementById('depart-time-input').addEventListener('change', (e) => {
+          if (/^\d{2}:\d{2}$/.test(e.target.value)) {
+            state.departTime = e.target.value;
+            savePrefs();
+            renderCommuteCountdown();
+          }
+        });
+
         document.getElementById('theme-toggle-btn').addEventListener('click', () => {
           state.darkMode = !state.darkMode;
           savePrefs();
           applyTheme();
-          showToast(state.darkMode ? '다크모드로 전환했습니다.' : '라이트모드로 전환했습니다.');
-        });
-
-        document.getElementById('refresh-btn').addEventListener('click', () => {
-          showToast('최신 날씨·미세먼지·뉴스를 불러오는 중...');
-          refreshAll();
-        });
-
-        document.getElementById('status-banner-close').addEventListener('click', hideBanner);
-
-        const settingsModal = document.getElementById('settings-modal');
-        document.getElementById('settings-btn').addEventListener('click', () => {
           syncSettingsUI();
-          settingsModal.classList.remove('hidden');
-          settingsModal.classList.add('flex');
-        });
-        document.getElementById('settings-close-btn').addEventListener('click', () => {
-          settingsModal.classList.add('hidden');
-          settingsModal.classList.remove('flex');
-        });
-        settingsModal.addEventListener('click', (e) => {
-          if (e.target === settingsModal) {
-            settingsModal.classList.add('hidden');
-            settingsModal.classList.remove('flex');
-          }
-        });
-
-        const securityModal = document.getElementById('security-modal');
-        document.getElementById('security-btn').addEventListener('click', () => {
-          document.getElementById('security-stats').textContent =
-            `현재 세션에서 차단된 비안전 링크: ${Security.blockedLinksCount}건`;
-          securityModal.classList.remove('hidden');
-          securityModal.classList.add('flex');
-          if (window.lucide) window.lucide.createIcons();
-        });
-        document.getElementById('security-close-btn').addEventListener('click', () => {
-          securityModal.classList.add('hidden');
-          securityModal.classList.remove('flex');
-        });
-        securityModal.addEventListener('click', (e) => {
-          if (e.target === securityModal) {
-            securityModal.classList.add('hidden');
-            securityModal.classList.remove('flex');
-          }
         });
 
         document.getElementById('gps-toggle-btn').addEventListener('click', () => {
           state.useGPS = !state.useGPS;
-          if (!state.useGPS && state.city.id === 'gps') {
-            state.city = CITY_PRESETS[0];
-          }
+          if (!state.useGPS && state.city.id === 'gps') state.city = CITY_PRESETS[0];
           savePrefs();
           syncSettingsUI();
           refreshAll();
@@ -1260,7 +1595,17 @@
           input.value = state.keywordFilter;
           savePrefs();
           renderNews();
-          showToast(state.keywordFilter ? `#${state.keywordFilter} 필터 적용됨` : '키워드 필터가 해제되었습니다');
+          showToast(state.keywordFilter ? `#${state.keywordFilter} 적용` : '필터 해제');
+        });
+
+        document.getElementById('checklist-add-btn').addEventListener('click', () => {
+          const input = document.getElementById('checklist-input');
+          const clean = Security.sanitizeTextInput(input.value, 30);
+          if (!clean) return;
+          state.checklist.push({ id: `c-${Date.now()}`, text: clean, done: false });
+          input.value = '';
+          savePrefs();
+          renderChecklist();
         });
 
         document.getElementById('reset-settings-btn').addEventListener('click', () => {
@@ -1268,13 +1613,26 @@
           state.city = CITY_PRESETS[0];
           state.useGPS = false;
           state.darkMode = false;
-          state.categoryId = 'top';
+          state.departTime = '08:00';
+          state.routeOrigin = '하남시청';
+          state.routeDest = '강남역';
+          state.finnhubKey = '';
+          state.categoryId = 'hk-econ';
           state.keywordFilter = '';
+          state.bookmarks = [];
+          state.stocks = [];
+          state.checklist = DEFAULT_CHECKLIST.map((x) => ({ ...x }));
+          state.focusItems = DEFAULT_FOCUS.map((x) => ({ ...x }));
           applyTheme();
           syncSettingsUI();
+          renderHeader();
+          renderRouteCard();
           renderCategoryChips();
+          renderMarket();
+          renderWorkFocus();
+          renderChecklist();
           refreshAll();
-          showToast('설정이 초기화되었습니다.');
+          showToast('초기화 완료');
         });
       }
 
@@ -1283,10 +1641,14 @@
       loadPrefs();
       applyTheme();
       renderHeader();
+      renderRouteCard();
       renderCategoryChips();
+      renderWorkFocus();
+      renderChecklist();
       initControls();
       if (window.lucide) window.lucide.createIcons();
       refreshAll();
+      setInterval(renderCommuteCountdown, 60000);
     })();
   </script>
 </body>
