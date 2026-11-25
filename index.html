@@ -234,17 +234,15 @@
         <div class="flex items-center justify-between gap-3">
           <a
             id="naver-route-link"
-            href="https://m.map.naver.com/route.nhn?menu=route"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="nmap://route/public?dlat=37.4979&dlng=127.0276&dname=%EA%B0%95%EB%82%A8%EC%97%AD&appname=morning-briefing"
             class="flex items-center gap-3 flex-1 min-w-0 active:opacity-70 transition"
           >
             <div class="w-9 h-9 rounded-xl bg-[#03c75a]/12 text-[#03c75a] flex items-center justify-center shrink-0">
               <i data-lucide="navigation" class="w-4 h-4"></i>
             </div>
             <div class="min-w-0 flex-1">
-              <p class="text-xs font-semibold t2">네이버 지도 길찾기</p>
-              <p id="route-label" class="text-sm font-bold truncate mt-0.5">하남시청 → 강남역</p>
+              <p id="route-mode-label" class="text-xs font-semibold t2">네이버 지도 앱 · 대중교통</p>
+              <p id="route-label" class="text-sm font-bold truncate mt-0.5">현위치 → 강남역</p>
             </div>
             <i data-lucide="chevron-right" class="w-4 h-4 t3 shrink-0"></i>
           </a>
@@ -357,14 +355,29 @@
       </div>
 
       <div class="space-y-5 text-sm">
-        <!-- Naver Map Commute Route -->
+        <!-- Naver Map App Commute Route -->
         <div class="space-y-2">
-          <label class="block text-xs font-semibold t2">네이버 지도 출근 경로</label>
+          <label class="block text-xs font-semibold t2">네이버 지도 앱 출근지</label>
           <div class="grid grid-cols-2 gap-2">
-            <input id="route-origin-input" type="text" maxlength="30" placeholder="출발지 (예: 하남시청)" class="input-box rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none" />
-            <input id="route-dest-input" type="text" maxlength="30" placeholder="도착지 (예: 강남역)" class="input-box rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none" />
+            <select id="route-mode-select" aria-label="이동 수단" class="input-box rounded-xl px-3 py-2.5 text-xs font-semibold focus:outline-none">
+              <option value="public">대중교통</option>
+              <option value="car">자동차</option>
+            </select>
+            <select id="route-preset-select" aria-label="주요 출근지" class="input-box rounded-xl px-3 py-2.5 text-xs font-semibold focus:outline-none">
+              <option value="gangnam">강남역</option>
+              <option value="pangyo">판교역</option>
+              <option value="yeouido">여의도역</option>
+              <option value="gwanghwamun">광화문</option>
+              <option value="jamsil">잠실역</option>
+              <option value="seoulstn">서울역</option>
+              <option value="custom">직접 입력</option>
+            </select>
           </div>
-          <button id="save-route-btn" type="button" class="w-full py-2.5 rounded-xl chip-active text-xs font-semibold active:scale-[0.99] transition">경로 저장</button>
+          <div id="custom-dest-wrap" class="hidden grid grid-cols-2 gap-2">
+            <input id="route-origin-input" type="text" maxlength="30" placeholder="출발지 (비우면 현위치)" class="input-box rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none" />
+            <input id="route-dest-input" type="text" maxlength="30" placeholder="도착지명 (예: 구로디지털단지)" class="input-box rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none" />
+          </div>
+          <button id="save-route-btn" type="button" class="w-full py-2.5 rounded-xl chip-active text-xs font-semibold active:scale-[0.99] transition">출근지 저장</button>
         </div>
 
         <!-- Departure Time -->
@@ -633,7 +646,16 @@
         { id: 'f3', text: '내일 일정 정리', done: false }
       ];
 
-      const STORAGE_KEY = 'morning_briefing_minimal_v7';
+      const DEST_PRESETS = {
+        gangnam: { name: '강남역', lat: 37.4979, lng: 127.0276 },
+        pangyo: { name: '판교역', lat: 37.3948, lng: 127.1112 },
+        yeouido: { name: '여의도역', lat: 37.5216, lng: 126.9242 },
+        gwanghwamun: { name: '광화문', lat: 37.5716, lng: 126.9769 },
+        jamsil: { name: '잠실역', lat: 37.5133, lng: 127.1001 },
+        seoulstn: { name: '서울역', lat: 37.5547, lng: 126.9707 }
+      };
+
+      const STORAGE_KEY = 'morning_briefing_minimal_v8';
 
       const state = {
         activeTab: 'home',
@@ -641,7 +663,9 @@
         useGPS: false,
         darkMode: false,
         departTime: '08:00',
-        routeOrigin: '하남시청',
+        routeMode: 'public',
+        routePreset: 'gangnam',
+        routeOrigin: '',
         routeDest: '강남역',
         finnhubKey: '',
         categoryId: 'hk-econ',
@@ -668,7 +692,9 @@
           if (typeof saved.useGPS === 'boolean') state.useGPS = saved.useGPS;
           if (typeof saved.darkMode === 'boolean') state.darkMode = saved.darkMode;
           if (typeof saved.departTime === 'string' && /^\d{2}:\d{2}$/.test(saved.departTime)) state.departTime = saved.departTime;
-          if (typeof saved.routeOrigin === 'string') state.routeOrigin = Security.sanitizeTextInput(saved.routeOrigin, 30) || '하남시청';
+          if (saved.routeMode === 'public' || saved.routeMode === 'car') state.routeMode = saved.routeMode;
+          if (typeof saved.routePreset === 'string' && (saved.routePreset === 'custom' || DEST_PRESETS[saved.routePreset])) state.routePreset = saved.routePreset;
+          if (typeof saved.routeOrigin === 'string') state.routeOrigin = Security.sanitizeTextInput(saved.routeOrigin, 30);
           if (typeof saved.routeDest === 'string') state.routeDest = Security.sanitizeTextInput(saved.routeDest, 30) || '강남역';
           if (typeof saved.finnhubKey === 'string') state.finnhubKey = Security.sanitizeTextInput(saved.finnhubKey, 80);
           if (typeof saved.categoryId === 'string' && NEWS_CATEGORIES.some((c) => c.id === saved.categoryId)) state.categoryId = saved.categoryId;
@@ -708,6 +734,8 @@
             useGPS: state.useGPS,
             darkMode: state.darkMode,
             departTime: state.departTime,
+            routeMode: state.routeMode,
+            routePreset: state.routePreset,
             routeOrigin: state.routeOrigin,
             routeDest: state.routeDest,
             finnhubKey: state.finnhubKey,
@@ -775,10 +803,16 @@
         return `${d.getMonth() + 1}/${d.getDate()}(${names[d.getDay()]})`;
       }
 
-      function buildNaverRouteURL(origin, dest) {
-        const s = encodeURIComponent(origin || '현재 위치');
-        const e = encodeURIComponent(dest || '강남역');
-        return `https://m.map.naver.com/route.nhn?menu=route&sname=${s}&ename=${e}&pathType=1`;
+      function buildNaverMapAppURL() {
+        const appName = encodeURIComponent(window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'morning-briefing');
+        const preset = DEST_PRESETS[state.routePreset];
+        if (preset) {
+          const action = state.routeMode === 'car' ? 'car' : 'public';
+          const dname = encodeURIComponent(preset.name);
+          return `nmap://route/${action}?dlat=${preset.lat}&dlng=${preset.lng}&dname=${dname}&appname=${appName}`;
+        }
+        const q = encodeURIComponent(state.routeDest || '강남역');
+        return `nmap://search?query=${q}&appname=${appName}`;
       }
 
       // ============================================================
@@ -996,8 +1030,13 @@
       }
 
       function renderRouteCard() {
-        document.getElementById('route-label').textContent = `${state.routeOrigin} → ${state.routeDest}`;
-        document.getElementById('naver-route-link').href = buildNaverRouteURL(state.routeOrigin, state.routeDest);
+        const modeText = state.routeMode === 'car' ? '자동차' : '대중교통';
+        const preset = DEST_PRESETS[state.routePreset];
+        const destName = preset ? preset.name : (state.routeDest || '강남역');
+        const originName = state.routeOrigin || '현위치';
+        document.getElementById('route-mode-label').textContent = preset ? `네이버 지도 앱 · ${modeText}` : '네이버 지도 앱 · 검색';
+        document.getElementById('route-label').textContent = `${originName} → ${destName}`;
+        document.getElementById('naver-route-link').href = buildNaverMapAppURL();
       }
 
       function renderCommuteCountdown() {
@@ -1485,6 +1524,9 @@
         select.value = exists ? state.city.id : CITY_PRESETS[0].id;
         document.getElementById('custom-keyword-input').value = state.keywordFilter;
         document.getElementById('depart-time-input').value = state.departTime;
+        document.getElementById('route-mode-select').value = state.routeMode;
+        document.getElementById('route-preset-select').value = state.routePreset;
+        document.getElementById('custom-dest-wrap').classList.toggle('hidden', state.routePreset !== 'custom');
         document.getElementById('route-origin-input').value = state.routeOrigin;
         document.getElementById('route-dest-input').value = state.routeDest;
         document.getElementById('finnhub-key-input').value = state.finnhubKey;
@@ -1538,15 +1580,28 @@
           if (state.activeArticle) toggleBookmark(state.activeArticle);
         });
 
+        document.getElementById('route-preset-select').addEventListener('change', (e) => {
+          document.getElementById('custom-dest-wrap').classList.toggle('hidden', e.target.value !== 'custom');
+        });
+
         document.getElementById('save-route-btn').addEventListener('click', () => {
-          const o = Security.sanitizeTextInput(document.getElementById('route-origin-input').value, 30);
-          const d = Security.sanitizeTextInput(document.getElementById('route-dest-input').value, 30);
-          if (!o || !d) return;
-          state.routeOrigin = o;
-          state.routeDest = d;
+          const modeVal = document.getElementById('route-mode-select').value;
+          const presetVal = document.getElementById('route-preset-select').value;
+          state.routeMode = modeVal === 'car' ? 'car' : 'public';
+          state.routePreset = (presetVal === 'custom' || DEST_PRESETS[presetVal]) ? presetVal : 'gangnam';
+          if (state.routePreset === 'custom') {
+            const o = Security.sanitizeTextInput(document.getElementById('route-origin-input').value, 30);
+            const d = Security.sanitizeTextInput(document.getElementById('route-dest-input').value, 30);
+            if (!d) return;
+            state.routeOrigin = o;
+            state.routeDest = d;
+          } else {
+            state.routeOrigin = '';
+            state.routeDest = DEST_PRESETS[state.routePreset].name;
+          }
           savePrefs();
           renderRouteCard();
-          showToast('경로 저장됨');
+          showToast('출근지 저장됨');
         });
 
         document.getElementById('save-finnhub-btn').addEventListener('click', () => {
@@ -1614,7 +1669,9 @@
           state.useGPS = false;
           state.darkMode = false;
           state.departTime = '08:00';
-          state.routeOrigin = '하남시청';
+          state.routeMode = 'public';
+          state.routePreset = 'gangnam';
+          state.routeOrigin = '';
           state.routeDest = '강남역';
           state.finnhubKey = '';
           state.categoryId = 'hk-econ';
