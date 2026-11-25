@@ -8,7 +8,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="출근 브리핑" />
   <meta id="theme-color-meta" name="theme-color" content="#f6f6f7" />
-  <link id="apple-touch-icon-link" rel="apple-touch-icon" href="" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
   <link id="manifest-link" rel="manifest" href="" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
@@ -548,17 +549,7 @@
       // ============================================================
       function setupPWAMetadata() {
         try {
-          const iconSVG = [
-            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">',
-            '<rect width="512" height="512" rx="112" fill="#111113"/>',
-            '<circle cx="256" cy="212" r="72" fill="#f5f5f7"/>',
-            '<rect x="136" y="330" width="240" height="24" rx="12" fill="#f5f5f7" opacity="0.85"/>',
-            '</svg>'
-          ].join('');
-          const iconDataURI = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSVG);
-          const appleLink = document.getElementById('apple-touch-icon-link');
-          if (appleLink) appleLink.href = iconDataURI;
-
+          const iconUrl = new URL('./icon-512.png', window.location.href).href;
           const manifest = {
             name: '출근 브리핑',
             short_name: '출근 브리핑',
@@ -566,7 +557,7 @@
             display: 'standalone',
             background_color: '#f6f6f7',
             theme_color: '#f6f6f7',
-            icons: [{ src: iconDataURI, sizes: '512x512', type: 'image/svg+xml' }]
+            icons: [{ src: iconUrl, sizes: '512x512', type: 'image/png' }]
           };
           const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
           const manifestLink = document.getElementById('manifest-link');
