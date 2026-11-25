@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>아침 브리핑 · Morning Briefing PWA</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="아침 브리핑" />
+  <meta id="theme-color-meta" name="theme-color" content="#1b56b8" />
+  <link id="apple-touch-icon-link" rel="apple-touch-icon" href="" />
+  <link id="manifest-link" rel="manifest" href="" />
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg-page: #f2f2f7;
+      --bg-card: #ffffff;
+      --bg-subtle: #f8fafc;
+      --text-primary: #1c1c1e;
+      --text-secondary: #64748b;
+      --border-soft: rgba(148, 163, 184, 0.25);
+    }
+
+    html.dark {
+      --bg-page: #000000;
+      --bg-card: #1c1c1e;
+      --bg-subtle: #2c2c2e;
+      --text-primary: #f2f2f7;
+      --text-secondary: #98989f;
+      --border-soft: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .ios-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.03);
+    }
+
+    .ios-icon-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      color: var(--text-primary);
+    }
+
+    .ios-modal-panel {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-soft);
+    }
+
+    .ios-subtle-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-soft);
+    }
+
+    .ios-input {
+      background: var(--bg-subtle);
+      color: var(--text-primary);
+      border: 1px solid var(--border-soft);
+    }
+
+    .text-muted {
+      color: var(--text-secondary);
+    }
+
+    .hero-sky-day {
+      background: linear-gradient(135deg, #1b56b8 0%, #3b82f6 55%, #60a5fa 100%);
+    }
+
+    .hero-sky-rain {
+      background: linear-gradient(135deg, #273c5a 0%, #3b5578 55%, #557299 100%);
+    }
+
+    .hero-sky-night {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%);
+    }
+
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    .skeleton {
+      animation: pulseSoft 1.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+  <div class="max-w-lg mx-auto px-4 pt-4 pb-10">
+    <!-- Top Header -->
+    <header class="flex items-center justify-between mb-4">
+      <div>
+        <p id="date-label" class="text-xs font-medium text-muted tracking-tight"></p>
+        <h1 id="greeting-label" class="text-2xl font-extrabold tracking-tight">좋은 아침이에요</h1>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button
+          id="theme-toggle-btn"
+          type="button"
+          aria-label="다크모드 전환"
+          class="ios-icon-btn w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:scale-95 transition"
+        >
+          <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+        <button
+          id="refresh-btn"
+          type="button"
+          aria-label="새로고침"
+          class="ios-icon-btn w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:scale-95 transition"
+        >
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        </button>
+        <button
+          id="security-btn"
+          type="button"
+          aria-label="보안 및 설치 안내"
+          class="ios-icon-btn w-9 h-9 rounded-full shadow-sm flex items-center justify-center text-emerald-500 active:scale-95 transition"
+        >
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+        </button>
+        <button
+          id="settings-btn"
+          type="button"
+          aria-label="설정"
+          class="ios-icon-btn w-9 h-9 rounded-full shadow-sm flex items-center justify-center active:scale-95 transition"
+        >
+          <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Status Notice Banner -->
+    <div id="status-banner" class="hidden mb-4 px-3.5 py-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 min-w-0">
+        <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+        <span id="status-banner-text" class="truncate"></span>
+      </div>
+      <button id="status-banner-close" type="button" class="font-semibold shrink-0 px-1">닫기</button>
+    </div>
+
+    <!-- Weather Hero Card -->
+    <section id="weather-hero" class="hero-sky-day rounded-[24px] p-5 text-white shadow-lg mb-4 transition-all">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <div class="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-2.5 py-1 rounded-full text-xs font-semibold mb-2">
+            <i id="location-icon" data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+            <span id="city-name">하남</span>
+            <span id="gps-badge" class="hidden text-[10px] bg-white/20 px-1.5 py-0.5 rounded-full">GPS</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="current-temp" class="text-5xl font-extrabold tracking-tight">--°</span>
+            <span id="weather-condition" class="text-base font-semibold text-white/90">불러오는 중</span>
+          </div>
+          <p id="feels-like" class="text-xs text-white/85 mt-1">체감 --° · 최고 --° / 최저 --°</p>
+        </div>
+
+        <div class="flex flex-col items-end gap-2">
+          <div id="weather-icon-wrap" class="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
+            <i data-lucide="sun" class="w-8 h-8 text-amber-200"></i>
+          </div>
+          <div class="inline-flex items-center gap-1 text-xs font-semibold text-sky-100">
+            <i data-lucide="droplets" class="w-3.5 h-3.5"></i>
+            <span id="rain-prob">강수 --%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 bg-white/15 backdrop-blur-sm rounded-2xl px-3.5 py-2.5 flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-4 h-4 shrink-0 text-amber-200"></i>
+        <p id="morning-tip" class="text-xs font-medium text-white leading-relaxed">오늘 날씨와 대기질에 맞는 아침 팁을 준비하고 있어요.</p>
+      </div>
+    </section>
+
+    <!-- Air Quality & UV Strip -->
+    <section class="grid grid-cols-3 gap-2.5 mb-5">
+      <div class="ios-card p-3 flex flex-col gap-1">
+        <span class="text-[11px] font-medium text-muted">미세먼지 PM10</span>
+        <div class="flex items-baseline justify-between gap-1">
+          <span id="pm10-value" class="text-base font-bold">--</span>
+          <span id="pm10-badge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-500/15 text-muted">대기</span>
+        </div>
+      </div>
+      <div class="ios-card p-3 flex flex-col gap-1">
+        <span class="text-[11px] font-medium text-muted">초미세 PM2.5</span>
+        <div class="flex items-baseline justify-between gap-1">
+          <span id="pm25-value" class="text-base font-bold">--</span>
+          <span id="pm25-badge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-500/15 text-muted">대기</span>
+        </div>
+      </div>
+      <div class="ios-card p-3 flex flex-col gap-1">
+        <span class="text-[11px] font-medium text-muted">자외선 UV</span>
+        <div class="flex items-baseline justify-between gap-1">
+          <span id="uv-value" class="text-base font-bold">--</span>
+          <span id="uv-badge" class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-slate-500/15 text-muted">대기</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hourly Forecast -->
+    <section class="mb-6">
+      <div class="flex items-center justify-between mb-2.5 px-1">
+        <h2 class="text-sm font-bold">시간대별 예보</h2>
+        <span id="updated-time" class="text-[11px] text-muted">업데이트 대기 중</span>
+      </div>
+      <div id="hourly-strip" class="flex gap-2.5 overflow-x-auto no-scrollbar pb-1"></div>
+    </section>
+
+    <!-- News Headlines -->
+    <section>
+      <div class="flex items-center justify-between mb-2.5 px-1">
+        <h2 class="text-sm font-bold">아침 뉴스 헤드라인</h2>
+        <span id="news-source-badge" class="text-[11px] font-medium px-2 py-0.5 rounded-full ios-subtle-box text-muted">HTTPS 검증됨</span>
+      </div>
+
+      <!-- Category Chips -->
+      <div id="category-chips" class="flex gap-2 overflow-x-auto no-scrollbar mb-3 pb-0.5"></div>
+
+      <!-- News Cards Container -->
+      <div id="news-list" class="space-y-2.5"></div>
+    </section>
+
+    <!-- Footer Security Note -->
+    <footer class="mt-8 text-center">
+      <p class="text-[11px] text-muted">
+        HTTPS 전용 링크 검증 · DOM XSS 차단 · 7일 만료 없는 무료 PWA
+      </p>
+    </footer>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-xs p-0 sm:p-4">
+    <div class="ios-modal-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold">브리핑 설정</h3>
+        <button id="settings-close-btn" type="button" class="text-sm font-semibold text-blue-500 px-2 py-1">완료</button>
+      </div>
+
+      <div class="space-y-5">
+        <!-- Location Setting -->
+        <div>
+          <label class="block text-xs font-semibold text-muted mb-2">위치 설정</label>
+          <div class="ios-subtle-box flex items-center justify-between rounded-2xl p-3.5 mb-2.5">
+            <div>
+              <p class="text-sm font-semibold">현재 위치 자동 감지 (GPS)</p>
+              <p class="text-xs text-muted">기기의 위치 정보로 날씨·미세먼지를 불러옵니다</p>
+            </div>
+            <button
+              id="gps-toggle-btn"
+              type="button"
+              role="switch"
+              aria-checked="false"
+              class="w-12 h-7 rounded-full bg-slate-400 relative transition-colors shrink-0"
+            >
+              <span id="gps-toggle-knob" class="block w-5 h-5 bg-white rounded-full shadow transform translate-x-1 transition-transform"></span>
+            </button>
+          </div>
+
+          <div id="manual-city-wrap">
+            <label for="city-select" class="block text-xs font-medium text-muted mb-1.5">수동 도시 선택</label>
+            <select id="city-select" class="ios-input w-full rounded-xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+          </div>
+        </div>
+
+        <!-- Custom Keyword Filter -->
+        <div>
+          <label for="custom-keyword-input" class="block text-xs font-semibold text-muted mb-1.5">뉴스 키워드 필터 (선택, 최대 20자)</label>
+          <div class="flex gap-2">
+            <input
+              id="custom-keyword-input"
+              type="text"
+              maxlength="20"
+              placeholder="예: AI, 반도체, 환율"
+              class="ios-input flex-1 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button id="apply-keyword-btn" type="button" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 active:scale-95 transition">적용</button>
+          </div>
+          <p class="text-[11px] text-muted mt-1">입력값은 제어문자 제거 및 길이 제한 후 안전하게 필터링됩니다.</p>
+        </div>
+
+        <!-- Reset -->
+        <div class="pt-3 border-t border-slate-500/15 flex items-center justify-between">
+          <span class="text-xs text-muted">로컬 캐시 및 설정 초기화</span>
+          <button id="reset-settings-btn" type="button" class="text-xs font-semibold text-rose-500 px-2.5 py-1.5 rounded-lg hover:bg-rose-500/10">초기화</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security & iPhone Install Modal -->
+  <div id="security-modal" class="fixed inset-0 z-40 hidden items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-xs p-0 sm:p-4">
+    <div class="ios-modal-panel w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-5 h-5 text-emerald-500"></i>
+          <h3 class="text-base font-bold">시큐어 코딩 & 아이폰 설치</h3>
+        </div>
+        <button id="security-close-btn" type="button" class="text-sm font-semibold text-blue-500 px-2 py-1">닫기</button>
+      </div>
+
+      <div class="space-y-4 text-xs leading-relaxed">
+        <div class="bg-emerald-500/10 border border-emerald-500/25 rounded-2xl p-3.5 space-y-1.5">
+          <p class="font-bold text-emerald-600">활성화된 보안 방어 계층</p>
+          <ul class="space-y-1 text-muted list-disc list-inside">
+            <li>외부 링크 <strong>HTTPS 전용</strong> 검증 (커스텀 스킴·사설 IP 차단)</li>
+            <li>비재귀 선형 O(n) JSON 중첩 깊이(16단계)·크기(512KB) 제한</li>
+            <li>정규표현식(ReDoS) 없는 O(n) HTML 정제 및 <code>textContent</code> 전용 DOM 렌더링</li>
+            <li>허용된 공식 API 도메인 화이트리스트 & 10초 타임아웃</li>
+          </ul>
+          <p id="security-stats" class="text-[11px] font-semibold text-emerald-600 pt-1"></p>
+        </div>
+
+        <div class="ios-subtle-box rounded-2xl p-3.5 space-y-2">
+          <p class="font-bold">GitHub Pages 무료 배포 & 아이폰 설치</p>
+          <ol class="space-y-1.5 text-muted list-decimal list-inside">
+            <li>ZIP 압축을 풀어 나온 <code>index.html</code>을 만들어 둔 GitHub 저장소에 업로드합니다.</li>
+            <li>저장소 <strong>Settings → Pages</strong>에서 <code>main</code> 브랜치를 선택해 무료 HTTPS 주소를 발급받습니다.</li>
+            <li>아이폰 <strong>Safari</strong>에서 해당 주소로 접속해 <strong>공유 → 홈 화면에 추가</strong>(웹 앱으로 열기 ON)를 누릅니다.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-full bg-slate-900 text-white text-xs font-medium shadow-lg"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // ============================================================
+      // 1. Security Layer (Zero-Recursion, Strict Allowlist, XSS-Safe)
+      // ============================================================
+      const ALLOWED_API_HOSTS = new Set([
+        'api.open-meteo.com',
+        'air-quality-api.open-meteo.com',
+        'api.rss2json.com'
+      ]);
+
+      const Security = {
+        MAX_URL_LENGTH: 2048,
+        MAX_RESPONSE_BYTES: 512 * 1024,
+        MAX_JSON_DEPTH: 16,
+        TIMEOUT_MS: 10000,
+        blockedLinksCount: 0,
+
+        isDisallowedHost(host) {
+          const h = String(host || '').toLowerCase();
+          if (!h || h === 'localhost' || h === '::1' || h.endsWith('.local') || h.endsWith('.internal')) {
+            return true;
+          }
+          const parts = h.split('.');
+          if (parts.length === 4 && parts.every((p) => /^\d+$/.test(p) && Number(p) >= 0 && Number(p) <= 255)) {
+            const a = Number(parts[0]);
+            const b = Number(parts[1]);
+            if (a === 0 || a === 10 || a === 127) return true;
+            if (a === 169 && b === 254) return true;
+            if (a === 172 && b >= 16 && b <= 31) return true;
+            if (a === 192 && b === 168) return true;
+          }
+          return false;
+        },
+
+        validatedExternalURL(raw) {
+          if (typeof raw !== 'string') return null;
+          const trimmed = raw.trim();
+          if (!trimmed || trimmed.length > this.MAX_URL_LENGTH) return null;
+          for (let i = 0; i < trimmed.length; i += 1) {
+            const code = trimmed.charCodeAt(i);
+            if (code <= 31 || code === 127) return null;
+          }
+          try {
+            const parsed = new URL(trimmed);
+            if (parsed.protocol !== 'https:') {
+              this.blockedLinksCount += 1;
+              return null;
+            }
+            if (parsed.username || parsed.password) {
+              this.blockedLinksCount += 1;
+              return null;
+            }
+            if (this.isDisallowedHost(parsed.hostname)) {
+              this.blockedLinksCount += 1;
+              return null;
+            }
+            return parsed.href;
+          } catch (_) {
+            this.blockedLinksCount += 1;
+            return null;
+          }
+        },
+
+        isValidCoordinate(lat, lon) {
+          return (
+            Number.isFinite(lat) &&
+            Number.isFinite(lon) &&
+            lat >= -90 && lat <= 90 &&
+            lon >= -180 && lon <= 180
+          );
+        },
+
+        sanitizeTextInput(raw, maxLen = 20) {
+          if (typeof raw !== 'string') return '';
+          let out = '';
+          for (let i = 0; i < raw.length && out.length < maxLen; i += 1) {
+            const code = raw.charCodeAt(i);
+            if (code >= 32 && code !== 127) {
+              out += raw[i];
+            }
+          }
+          return out.trim();
+        },
+
+        stripHTMLSafely(raw, maxLen = 220) {
+          if (typeof raw !== 'string') return '';
+          let out = '';
+          let inTag = false;
+          for (let i = 0; i < raw.length && out.length < maxLen; i += 1) {
+            const ch = raw[i];
+            if (ch === '<') {
+              inTag = true;
+              continue;
+            }
+            if (ch === '>') {
+              inTag = false;
+              continue;
+            }
+            if (!inTag) out += ch;
+          }
+          return out
+            .replaceAll('&quot;', '"')
+            .replaceAll('&apos;', "'")
+            .replaceAll('&#39;', "'")
+            .replaceAll('&amp;', '&')
+            .replaceAll('&lt;', '<')
+            .replaceAll('&gt;', '>')
+            .trim();
+        },
+
+        validateJSONDepth(text, maxDepth = this.MAX_JSON_DEPTH) {
+          let depth = 0;
+          let inString = false;
+          let escaped = false;
+          for (let i = 0; i < text.length; i += 1) {
+            const ch = text[i];
+            if (inString) {
+              if (escaped) {
+                escaped = false;
+              } else if (ch === '\\') {
+                escaped = true;
+              } else if (ch === '"') {
+                inString = false;
+              }
+              continue;
+            }
+            if (ch === '"') {
+              inString = true;
+            } else if (ch === '{' || ch === '[') {
+              depth += 1;
+              if (depth > maxDepth) return false;
+            } else if (ch === '}' || ch === ']') {
+              depth -= 1;
+              if (depth < 0) return false;
+            }
+          }
+          return depth === 0 && !inString;
+        },
+
+        async fetchValidatedJSON(urlString) {
+          const parsed = new URL(urlString);
+          if (parsed.protocol !== 'https:' || !ALLOWED_API_HOSTS.has(parsed.hostname.toLowerCase())) {
+            throw new Error('허용되지 않은 호스트 요청이 차단되었습니다.');
+          }
+
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
+
+          try {
+            const response = await fetch(parsed.href, {
+              method: 'GET',
+              mode: 'cors',
+              credentials: 'omit',
+              cache: 'no-store',
+              redirect: 'error',
+              signal: controller.signal
+            });
+            if (!response.ok) {
+              throw new Error('서버 응답이 올바르지 않습니다.');
+            }
+            const text = await response.text();
+            if (text.length > this.MAX_RESPONSE_BYTES) {
+              throw new Error('응답 크기가 안전 한도를 초과했습니다.');
+            }
+            if (!this.validateJSONDepth(text)) {
+              throw new Error('비정상적인 JSON 구조가 차단되었습니다.');
+            }
+            return JSON.parse(text);
+          } finally {
+            clearTimeout(timer);
+          }
+        }
+      };
+
+      // ============================================================
+      // 2. Dynamic PWA Icon & Manifest Setup
+      // ============================================================
+      function setupPWAMetadata() {
+        try {
+          const iconSVG = [
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">',
+            '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">',
+            '<stop offset="0%" stop-color="#1b56b8"/><stop offset="100%" stop-color="#60a5fa"/>',
+            '</linearGradient></defs>',
+            '<rect width="512" height="512" rx="112" fill="url(#g)"/>',
+            '<circle cx="256" cy="216" r="82" fill="#fde047"/>',
+            '<rect x="116" y="328" width="280" height="28" rx="14" fill="#ffffff" opacity="0.92"/>',
+            '<rect x="156" y="376" width="200" height="22" rx="11" fill="#ffffff" opacity="0.65"/>',
+            '</svg>'
+          ].join('');
+          const iconDataURI = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSVG);
+          const appleLink = document.getElementById('apple-touch-icon-link');
+          if (appleLink) appleLink.href = iconDataURI;
+
+          const manifest = {
+            name: '아침 브리핑',
+            short_name: '아침 브리핑',
+            start_url: '.',
+            display: 'standalone',
+            background_color: '#f2f2f7',
+            theme_color: '#1b56b8',
+            icons: [{ src: iconDataURI, sizes: '512x512', type: 'image/svg+xml' }]
+          };
+          const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+          const manifestLink = document.getElementById('manifest-link');
+          if (manifestLink) manifestLink.href = URL.createObjectURL(blob);
+        } catch (_) {
+          // Ignore in restricted environments
+        }
+      }
+
+      // ============================================================
+      // 3. Domain Presets & State
+      // ============================================================
+      const CITY_PRESETS = [
+        { id: 'hanam', name: '하남', lat: 37.5393, lon: 127.2148 },
+        { id: 'seoul', name: '서울', lat: 37.5665, lon: 126.9780 },
+        { id: 'bundang', name: '성남·분당', lat: 37.3827, lon: 127.1189 },
+        { id: 'busan', name: '부산', lat: 35.1796, lon: 129.0756 },
+        { id: 'jeju', name: '제주', lat: 33.4996, lon: 126.5312 }
+      ];
+
+      const NEWS_CATEGORIES = [
+        { id: 'top', label: '주요', rss: 'https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko' },
+        { id: 'business', label: '경제', rss: 'https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko' },
+        { id: 'tech', label: 'IT·과학', rss: 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=ko&gl=KR&ceid=KR:ko' },
+        { id: 'nation', label: '사회', rss: 'https://news.google.com/rss/headlines/section/topic/NATION?hl=ko&gl=KR&ceid=KR:ko' },
+        { id: 'world', label: '글로벌', rss: 'https://news.google.com/rss/headlines/section/topic/WORLD?hl=ko&gl=KR&ceid=KR:ko' }
+      ];
+
+      const STORAGE_KEY = 'morning_briefing_pwa_prefs_v2';
+
+      const state = {
+        city: CITY_PRESETS[0],
+        useGPS: false,
+        darkMode: false,
+        categoryId: 'top',
+        keywordFilter: '',
+        isLoading: false,
+        weather: null,
+        airQuality: null,
+        news: [],
+        newsLive: false,
+        updatedAt: null
+      };
+
+      function applyTheme() {
+        const root = document.documentElement;
+        const themeMeta = document.getElementById('theme-color-meta');
+        const icon = document.getElementById('theme-icon');
+        if (state.darkMode) {
+          root.classList.add('dark');
+          if (themeMeta) themeMeta.setAttribute('content', '#000000');
+          if (icon) icon.setAttribute('data-lucide', 'sun');
+        } else {
+          root.classList.remove('dark');
+          if (themeMeta) themeMeta.setAttribute('content', '#1b56b8');
+          if (icon) icon.setAttribute('data-lucide', 'moon');
+        }
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function loadPrefs() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          if (!Security.validateJSONDepth(raw, 6)) return;
+          const saved = JSON.parse(raw);
+          if (saved && typeof saved === 'object') {
+            if (typeof saved.useGPS === 'boolean') state.useGPS = saved.useGPS;
+            if (typeof saved.darkMode === 'boolean') state.darkMode = saved.darkMode;
+            if (typeof saved.categoryId === 'string' && NEWS_CATEGORIES.some((c) => c.id === saved.categoryId)) {
+              state.categoryId = saved.categoryId;
+            }
+            if (typeof saved.keywordFilter === 'string') {
+              state.keywordFilter = Security.sanitizeTextInput(saved.keywordFilter, 20);
+            }
+            if (saved.city && Security.isValidCoordinate(Number(saved.city.lat), Number(saved.city.lon))) {
+              state.city = {
+                id: Security.sanitizeTextInput(String(saved.city.id || 'custom'), 24) || 'custom',
+                name: Security.sanitizeTextInput(String(saved.city.name || '하남'), 20) || '하남',
+                lat: Number(saved.city.lat),
+                lon: Number(saved.city.lon)
+              };
+            }
+          }
+        } catch (_) {
+          // Safe fallback to defaults
+        }
+      }
+
+      function savePrefs() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            city: state.city,
+            useGPS: state.useGPS,
+            darkMode: state.darkMode,
+            categoryId: state.categoryId,
+            keywordFilter: state.keywordFilter
+          }));
+        } catch (_) {
+          // Ignore storage errors
+        }
+      }
+
+      // ============================================================
+      // 4. Weather, Air Quality & News Helpers
+      // ============================================================
+      function clampRange(v, minV, maxV) {
+        const n = Number(v);
+        if (!Number.isFinite(n)) return 0;
+        return Math.max(minV, Math.min(maxV, n));
+      }
+
+      function wmoInfo(code) {
+        const c = Number(code);
+        if (c === 0) return { text: '맑음', icon: 'sun', color: 'text-amber-200', rain: false };
+        if (c === 1 || c === 2) return { text: '구름 조금', icon: 'cloud-sun', color: 'text-amber-100', rain: false };
+        if (c === 3) return { text: '흐림', icon: 'cloud', color: 'text-slate-100', rain: false };
+        if (c === 45 || c === 48) return { text: '안개', icon: 'cloud-fog', color: 'text-slate-200', rain: false };
+        if (c >= 51 && c <= 67) return { text: '비', icon: 'cloud-rain', color: 'text-sky-200', rain: true };
+        if (c >= 71 && c <= 77) return { text: '눈', icon: 'snowflake', color: 'text-sky-100', rain: true };
+        if (c >= 80 && c <= 82) return { text: '소나기', icon: 'cloud-drizzle', color: 'text-sky-200', rain: true };
+        if (c >= 95) return { text: '뇌우', icon: 'cloud-lightning', color: 'text-amber-200', rain: true };
+        return { text: '맑음', icon: 'sun', color: 'text-amber-200', rain: false };
+      }
+
+      function gradePM10(val) {
+        if (val <= 30) return { label: '좋음', cls: 'bg-sky-500/15 text-sky-500' };
+        if (val <= 80) return { label: '보통', cls: 'bg-emerald-500/15 text-emerald-500' };
+        if (val <= 150) return { label: '나쁨', cls: 'bg-amber-500/15 text-amber-500' };
+        return { label: '매우나쁨', cls: 'bg-rose-500/15 text-rose-500' };
+      }
+
+      function gradePM25(val) {
+        if (val <= 15) return { label: '좋음', cls: 'bg-sky-500/15 text-sky-500' };
+        if (val <= 35) return { label: '보통', cls: 'bg-emerald-500/15 text-emerald-500' };
+        if (val <= 75) return { label: '나쁨', cls: 'bg-amber-500/15 text-amber-500' };
+        return { label: '매우나쁨', cls: 'bg-rose-500/15 text-rose-500' };
+      }
+
+      function gradeUV(val) {
+        if (val < 3) return { label: '낮음', cls: 'bg-emerald-500/15 text-emerald-500' };
+        if (val < 6) return { label: '보통', cls: 'bg-sky-500/15 text-sky-500' };
+        if (val < 8) return { label: '높음', cls: 'bg-amber-500/15 text-amber-500' };
+        return { label: '매우높음', cls: 'bg-rose-500/15 text-rose-500' };
+      }
+
+      function buildMorningTip(temp, rainProb, code, aq) {
+        const extras = [];
+        if (aq && (aq.pm10 >= 81 || aq.pm25 >= 36)) {
+          extras.push('미세먼지가 나쁨 수준이니 마스크를 챙기세요.');
+        }
+        if (rainProb >= 40 || (code >= 51 && code <= 99)) {
+          extras.push('비·눈 소식이 있어 우산이 필요해요.');
+        }
+        if (extras.length > 0) return extras.join(' ');
+        if (temp < 5) return '아침 공기가 매우 차가워요. 두꺼운 패딩과 목도리를 추천해요.';
+        if (temp < 12) return '쌀쌀한 아침이에요. 코트나 가벼운 패딩을 챙기세요.';
+        if (temp < 19) return '선선하고 쾌적해요. 가디건이나 가벼운 자켓이 잘 어울려요.';
+        if (temp < 25) return '활동하기 좋은 기온이에요. 가벼운 긴팔이나 반팔이 적당해요.';
+        return '더운 날씨예요. 시원한 옷차림과 충분한 수분 섭취를 챙기세요.';
+      }
+
+      function formatRelativeTime(dateInput) {
+        const d = new Date(dateInput);
+        if (Number.isNaN(d.getTime())) return '방금 전';
+        const diffMin = Math.max(0, Math.floor((Date.now() - d.getTime()) / 60000));
+        if (diffMin < 1) return '방금 전';
+        if (diffMin < 60) return `${diffMin}분 전`;
+        const diffHr = Math.floor(diffMin / 60);
+        if (diffHr < 24) return `${diffHr}시간 전`;
+        return `${Math.floor(diffHr / 24)}일 전`;
+      }
+
+      // ============================================================
+      // 5. Data Fetchers
+      // ============================================================
+      function requestGPSLocation() {
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error('이 브라우저에서는 GPS를 지원하지 않습니다.'));
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const lat = Number(pos.coords.latitude);
+              const lon = Number(pos.coords.longitude);
+              if (!Security.isValidCoordinate(lat, lon)) {
+                reject(new Error('유효하지 않은 좌표입니다.'));
+                return;
+              }
+              resolve({ id: 'gps', name: '현재 위치', lat, lon });
+            },
+            () => reject(new Error('위치 권한이 꺼져 있어 저장된 도시 날씨를 표시합니다.')),
+            { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+          );
+        });
+      }
+
+      async function fetchWeather(city) {
+        if (!Security.isValidCoordinate(city.lat, city.lon)) {
+          throw new Error('잘못된 좌표입니다.');
+        }
+        const params = new URLSearchParams({
+          latitude: city.lat.toFixed(4),
+          longitude: city.lon.toFixed(4),
+          current: 'temperature_2m,apparent_temperature,weather_code',
+          hourly: 'temperature_2m,weather_code,precipitation_probability',
+          daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+          timezone: 'Asia/Seoul',
+          forecast_days: '2'
+        });
+
+        const data = await Security.fetchValidatedJSON(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+        const cur = data.current || {};
+        const daily = data.daily || {};
+        const hourly = data.hourly || {};
+
+        const times = Array.isArray(hourly.time) ? hourly.time : [];
+        const temps = Array.isArray(hourly.temperature_2m) ? hourly.temperature_2m : [];
+        const codes = Array.isArray(hourly.weather_code) ? hourly.weather_code : [];
+        const probs = Array.isArray(hourly.precipitation_probability) ? hourly.precipitation_probability : [];
+
+        const nowMs = Date.now() - 3600 * 1000;
+        const upcoming = [];
+        const limit = Math.min(times.length, temps.length, codes.length, probs.length, 48);
+
+        for (let i = 0; i < limit && upcoming.length < 10; i += 1) {
+          const ts = Date.parse(times[i]);
+          if (Number.isNaN(ts) || ts < nowMs) continue;
+          const hourStr = String(times[i]).slice(11, 13) + '시';
+          upcoming.push({
+            hour: hourStr,
+            temp: clampRange(temps[i], -80, 70),
+            code: Number(codes[i]) || 0,
+            prob: Math.round(clampRange(probs[i], 0, 100))
+          });
+        }
+
+        const currentTemp = clampRange(cur.temperature_2m, -80, 70);
+        const rainProb = Math.round(clampRange(Array.isArray(daily.precipitation_probability_max) ? daily.precipitation_probability_max[0] : 0, 0, 100));
+        const weatherCode = Number(cur.weather_code) || 0;
+
+        return {
+          cityName: city.name,
+          currentTemp,
+          apparentTemp: clampRange(cur.apparent_temperature, -80, 70),
+          minTemp: clampRange(Array.isArray(daily.temperature_2m_min) ? daily.temperature_2m_min[0] : currentTemp, -80, 70),
+          maxTemp: clampRange(Array.isArray(daily.temperature_2m_max) ? daily.temperature_2m_max[0] : currentTemp, -80, 70),
+          weatherCode,
+          rainProb,
+          hourly: upcoming
+        };
+      }
+
+      async function fetchAirQuality(city) {
+        if (!Security.isValidCoordinate(city.lat, city.lon)) {
+          throw new Error('잘못된 좌표입니다.');
+        }
+        const params = new URLSearchParams({
+          latitude: city.lat.toFixed(4),
+          longitude: city.lon.toFixed(4),
+          current: 'pm10,pm2_5,uv_index',
+          timezone: 'Asia/Seoul'
+        });
+        const data = await Security.fetchValidatedJSON(`https://air-quality-api.open-meteo.com/v1/air-quality?${params.toString()}`);
+        const cur = data.current || {};
+        return {
+          pm10: Math.round(clampRange(cur.pm10, 0, 1000)),
+          pm25: Math.round(clampRange(cur.pm2_5, 0, 1000)),
+          uv: Number(clampRange(cur.uv_index, 0, 20).toFixed(1))
+        };
+      }
+
+      async function fetchNews(categoryId) {
+        const cat = NEWS_CATEGORIES.find((c) => c.id === categoryId) || NEWS_CATEGORIES[0];
+        const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(cat.rss)}`;
+        const data = await Security.fetchValidatedJSON(apiUrl);
+        const items = Array.isArray(data.items) ? data.items.slice(0, 15) : [];
+
+        return items.map((item) => {
+          const title = Security.stripHTMLSafely(item.title || '', 160);
+          const summary = Security.stripHTMLSafely(item.description || '', 220);
+          const safeUrl = Security.validatedExternalURL(item.link || '');
+          return {
+            title: title || '제목 없음',
+            summary: summary && summary !== title ? summary : '원문 기사에서 자세한 내용을 확인하세요.',
+            safeUrl,
+            pubDate: item.pubDate || ''
+          };
+        });
+      }
+
+      // ============================================================
+      // 6. Safe DOM Rendering (Zero innerHTML for API data)
+      // ============================================================
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.remove('hidden');
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 2600);
+      }
+
+      function showBanner(message) {
+        const banner = document.getElementById('status-banner');
+        const textEl = document.getElementById('status-banner-text');
+        if (!banner || !textEl) return;
+        textEl.textContent = message;
+        banner.classList.remove('hidden');
+      }
+
+      function hideBanner() {
+        const banner = document.getElementById('status-banner');
+        if (banner) banner.classList.add('hidden');
+      }
+
+      function renderHeader() {
+        const now = new Date();
+        const hour = now.getHours();
+        const greeting = hour >= 5 && hour < 12
+          ? '좋은 아침이에요'
+          : (hour >= 12 && hour < 18 ? '오늘의 브리핑' : '저녁 브리핑');
+        const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+        const dateStr = `${now.getMonth() + 1}월 ${now.getDate()}일 ${days[now.getDay()]}`;
+
+        document.getElementById('greeting-label').textContent = greeting;
+        document.getElementById('date-label').textContent = dateStr;
+      }
+
+      function renderAirQuality() {
+        const aq = state.airQuality;
+        if (!aq) return;
+
+        const g10 = gradePM10(aq.pm10);
+        const g25 = gradePM25(aq.pm25);
+        const gUV = gradeUV(aq.uv);
+
+        document.getElementById('pm10-value').textContent = `${aq.pm10}`;
+        const pm10Badge = document.getElementById('pm10-badge');
+        pm10Badge.textContent = g10.label;
+        pm10Badge.className = `text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${g10.cls}`;
+
+        document.getElementById('pm25-value').textContent = `${aq.pm25}`;
+        const pm25Badge = document.getElementById('pm25-badge');
+        pm25Badge.textContent = g25.label;
+        pm25Badge.className = `text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${g25.cls}`;
+
+        document.getElementById('uv-value').textContent = `${aq.uv}`;
+        const uvBadge = document.getElementById('uv-badge');
+        uvBadge.textContent = gUV.label;
+        uvBadge.className = `text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${gUV.cls}`;
+      }
+
+      function renderWeather() {
+        const w = state.weather;
+        if (!w) return;
+
+        const info = wmoInfo(w.weatherCode);
+        const hero = document.getElementById('weather-hero');
+        hero.classList.remove('hero-sky-day', 'hero-sky-rain', 'hero-sky-night');
+        const hour = new Date().getHours();
+        if (info.rain) {
+          hero.classList.add('hero-sky-rain');
+        } else if (hour >= 20 || hour < 6) {
+          hero.classList.add('hero-sky-night');
+        } else {
+          hero.classList.add('hero-sky-day');
+        }
+
+        document.getElementById('city-name').textContent = w.cityName;
+        const gpsBadge = document.getElementById('gps-badge');
+        if (state.useGPS) gpsBadge.classList.remove('hidden');
+        else gpsBadge.classList.add('hidden');
+
+        document.getElementById('current-temp').textContent = `${Math.round(w.currentTemp)}°`;
+        document.getElementById('weather-condition').textContent = info.text;
+        document.getElementById('feels-like').textContent =
+          `체감 ${Math.round(w.apparentTemp)}° · 최고 ${Math.round(w.maxTemp)}° / 최저 ${Math.round(w.minTemp)}°`;
+        document.getElementById('rain-prob').textContent = `강수 ${w.rainProb}%`;
+        document.getElementById('morning-tip').textContent =
+          buildMorningTip(w.currentTemp, w.rainProb, w.weatherCode, state.airQuality);
+
+        const iconWrap = document.getElementById('weather-icon-wrap');
+        iconWrap.replaceChildren();
+        const iconEl = document.createElement('i');
+        iconEl.setAttribute('data-lucide', info.icon);
+        iconEl.className = `w-8 h-8 ${info.color}`;
+        iconWrap.appendChild(iconEl);
+
+        const hourlyStrip = document.getElementById('hourly-strip');
+        hourlyStrip.replaceChildren();
+        for (const item of w.hourly) {
+          const itemInfo = wmoInfo(item.code);
+          const card = document.createElement('div');
+          card.className = 'ios-card shrink-0 w-16 py-3 px-2 flex flex-col items-center gap-1.5';
+
+          const hLabel = document.createElement('span');
+          hLabel.className = 'text-[11px] font-medium text-muted';
+          hLabel.textContent = item.hour;
+
+          const hIcon = document.createElement('i');
+          hIcon.setAttribute('data-lucide', itemInfo.icon);
+          hIcon.className = 'w-5 h-5 text-blue-500';
+
+          const hTemp = document.createElement('span');
+          hTemp.className = 'text-sm font-bold';
+          hTemp.textContent = `${Math.round(item.temp)}°`;
+
+          const hProb = document.createElement('span');
+          hProb.className = 'text-[10px] font-semibold text-sky-500';
+          hProb.textContent = `${item.prob}%`;
+
+          card.append(hLabel, hIcon, hTemp, hProb);
+          hourlyStrip.appendChild(card);
+        }
+
+        if (state.updatedAt) {
+          const hh = String(state.updatedAt.getHours()).padStart(2, '0');
+          const mm = String(state.updatedAt.getMinutes()).padStart(2, '0');
+          document.getElementById('updated-time').textContent = `${hh}:${mm} 기준`;
+        }
+        if (window.lucide) window.lucide.createIcons();
+      }
+
+      function renderCategoryChips() {
+        const container = document.getElementById('category-chips');
+        container.replaceChildren();
+
+        for (const cat of NEWS_CATEGORIES) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          const active = state.categoryId === cat.id;
+          btn.className = active
+            ? 'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white shadow-xs transition'
+            : 'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold ios-icon-btn transition';
+          btn.textContent = cat.label;
+          btn.addEventListener('click', () => {
+            if (state.categoryId === cat.id) return;
+            state.categoryId = cat.id;
+            savePrefs();
+            renderCategoryChips();
+            refreshNewsOnly();
+          });
+          container.appendChild(btn);
+        }
+      }
+
+      function renderNews() {
+        const container = document.getElementById('news-list');
+        container.replaceChildren();
+
+        const badge = document.getElementById('news-source-badge');
+        badge.textContent = state.keywordFilter
+          ? `필터: #${state.keywordFilter}`
+          : (state.newsLive ? '실시간 HTTPS' : '오프라인 안내');
+
+        const filter = state.keywordFilter.toLowerCase();
+        const filtered = filter
+          ? state.news.filter((n) => n.title.toLowerCase().includes(filter) || n.summary.toLowerCase().includes(filter))
+          : state.news;
+
+        if (filtered.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'ios-card p-6 text-center text-xs text-muted';
+          empty.textContent = filter
+            ? `"${state.keywordFilter}" 키워드와 일치하는 헤드라인이 없습니다. 설정에서 필터를 비워 보세요.`
+            : '불러온 헤드라인이 없습니다. 상단 새로고침 버튼을 눌러 다시 시도해 주세요.';
+          container.appendChild(empty);
+          return;
+        }
+
+        for (const item of filtered.slice(0, 10)) {
+          const wrapper = item.safeUrl ? document.createElement('a') : document.createElement('div');
+          if (item.safeUrl) {
+            wrapper.href = item.safeUrl;
+            wrapper.target = '_blank';
+            wrapper.rel = 'noopener noreferrer';
+          }
+          wrapper.className = 'ios-card block p-4 active:scale-[0.99] transition';
+
+          const title = document.createElement('h3');
+          title.className = 'text-sm font-bold leading-snug line-clamp-2';
+          title.textContent = item.title;
+
+          const meta = document.createElement('div');
+          meta.className = 'flex items-center justify-between mt-2.5 text-[11px] text-muted';
+
+          const timeEl = document.createElement('span');
+          timeEl.textContent = formatRelativeTime(item.pubDate);
+
+          const linkState = document.createElement('span');
+          linkState.className = item.safeUrl ? 'inline-flex items-center gap-1 text-blue-500 font-medium' : 'text-muted';
+          linkState.textContent = item.safeUrl ? '안전 링크로 읽기 ↗' : '링크 차단됨';
+
+          meta.append(timeEl, linkState);
+          wrapper.append(title, meta);
+          container.appendChild(wrapper);
+        }
+      }
+
+      function renderLoadingSkeletons() {
+        const newsList = document.getElementById('news-list');
+        newsList.replaceChildren();
+        for (let i = 0; i < 4; i += 1) {
+          const sk = document.createElement('div');
+          sk.className = 'ios-card p-4 space-y-2 skeleton';
+          const line1 = document.createElement('div');
+          line1.className = 'h-3.5 bg-slate-400/25 rounded w-11/12';
+          const line2 = document.createElement('div');
+          line2.className = 'h-3 bg-slate-400/15 rounded w-1/3';
+          sk.append(line1, line2);
+          newsList.appendChild(sk);
+        }
+      }
+
+      // ============================================================
+      // 7. Refresh Orchestration
+      // ============================================================
+      async function refreshNewsOnly() {
+        renderLoadingSkeletons();
+        try {
+          state.news = await fetchNews(state.categoryId);
+          state.newsLive = true;
+        } catch (_) {
+          state.newsLive = false;
+          state.news = [
+            {
+              title: '실시간 뉴스 피드 연결이 지연되고 있습니다',
+              summary: '네트워크 상태를 확인한 뒤 상단 새로고침 버튼을 눌러 다시 시도해 주세요.',
+              safeUrl: null,
+              pubDate: new Date().toISOString()
+            }
+          ];
+        }
+        renderNews();
+      }
+
+      async function refreshAll() {
+        if (state.isLoading) return;
+        state.isLoading = true;
+        hideBanner();
+        renderHeader();
+        renderLoadingSkeletons();
+
+        let targetCity = state.city;
+        if (state.useGPS) {
+          try {
+            targetCity = await requestGPSLocation();
+            state.city = targetCity;
+            savePrefs();
+          } catch (err) {
+            showBanner(err.message);
+          }
+        }
+
+        const [weatherRes, aqRes, newsRes] = await Promise.allSettled([
+          fetchWeather(targetCity),
+          fetchAirQuality(targetCity),
+          fetchNews(state.categoryId)
+        ]);
+
+        if (aqRes.status === 'fulfilled') {
+          state.airQuality = aqRes.value;
+          renderAirQuality();
+        }
+
+        if (weatherRes.status === 'fulfilled') {
+          state.weather = weatherRes.value;
+          state.updatedAt = new Date();
+          renderWeather();
+        } else {
+          showBanner('날씨 정보를 불러오지 못했습니다. 네트워크를 확인해 주세요.');
+        }
+
+        if (newsRes.status === 'fulfilled') {
+          state.news = newsRes.value;
+          state.newsLive = true;
+        } else {
+          state.newsLive = false;
+          state.news = [
+            {
+              title: '실시간 뉴스 피드 연결이 지연되고 있습니다',
+              summary: '네트워크 상태를 확인한 뒤 상단 새로고침 버튼을 눌러 다시 시도해 주세요.',
+              safeUrl: null,
+              pubDate: new Date().toISOString()
+            }
+          ];
+        }
+
+        renderNews();
+        state.isLoading = false;
+      }
+
+      // ============================================================
+      // 8. Modals & Controls Wiring
+      // ============================================================
+      function syncSettingsUI() {
+        const toggleBtn = document.getElementById('gps-toggle-btn');
+        const knob = document.getElementById('gps-toggle-knob');
+        const manualWrap = document.getElementById('manual-city-wrap');
+        toggleBtn.setAttribute('aria-checked', String(state.useGPS));
+        if (state.useGPS) {
+          toggleBtn.classList.remove('bg-slate-400');
+          toggleBtn.classList.add('bg-blue-600');
+          knob.classList.remove('translate-x-1');
+          knob.classList.add('translate-x-6');
+          manualWrap.classList.add('opacity-50', 'pointer-events-none');
+        } else {
+          toggleBtn.classList.add('bg-slate-400');
+          toggleBtn.classList.remove('bg-blue-600');
+          knob.classList.add('translate-x-1');
+          knob.classList.remove('translate-x-6');
+          manualWrap.classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        const select = document.getElementById('city-select');
+        const exists = CITY_PRESETS.some((c) => c.id === state.city.id);
+        select.value = exists ? state.city.id : CITY_PRESETS[0].id;
+        document.getElementById('custom-keyword-input').value = state.keywordFilter;
+      }
+
+      function initControls() {
+        const select = document.getElementById('city-select');
+        select.replaceChildren();
+        for (const c of CITY_PRESETS) {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          select.appendChild(opt);
+        }
+
+        document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+          state.darkMode = !state.darkMode;
+          savePrefs();
+          applyTheme();
+          showToast(state.darkMode ? '다크모드로 전환했습니다.' : '라이트모드로 전환했습니다.');
+        });
+
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+          showToast('최신 날씨·미세먼지·뉴스를 불러오는 중...');
+          refreshAll();
+        });
+
+        document.getElementById('status-banner-close').addEventListener('click', hideBanner);
+
+        const settingsModal = document.getElementById('settings-modal');
+        document.getElementById('settings-btn').addEventListener('click', () => {
+          syncSettingsUI();
+          settingsModal.classList.remove('hidden');
+          settingsModal.classList.add('flex');
+        });
+        document.getElementById('settings-close-btn').addEventListener('click', () => {
+          settingsModal.classList.add('hidden');
+          settingsModal.classList.remove('flex');
+        });
+        settingsModal.addEventListener('click', (e) => {
+          if (e.target === settingsModal) {
+            settingsModal.classList.add('hidden');
+            settingsModal.classList.remove('flex');
+          }
+        });
+
+        const securityModal = document.getElementById('security-modal');
+        document.getElementById('security-btn').addEventListener('click', () => {
+          document.getElementById('security-stats').textContent =
+            `현재 세션에서 차단된 비안전 링크: ${Security.blockedLinksCount}건`;
+          securityModal.classList.remove('hidden');
+          securityModal.classList.add('flex');
+          if (window.lucide) window.lucide.createIcons();
+        });
+        document.getElementById('security-close-btn').addEventListener('click', () => {
+          securityModal.classList.add('hidden');
+          securityModal.classList.remove('flex');
+        });
+        securityModal.addEventListener('click', (e) => {
+          if (e.target === securityModal) {
+            securityModal.classList.add('hidden');
+            securityModal.classList.remove('flex');
+          }
+        });
+
+        document.getElementById('gps-toggle-btn').addEventListener('click', () => {
+          state.useGPS = !state.useGPS;
+          if (!state.useGPS && state.city.id === 'gps') {
+            state.city = CITY_PRESETS[0];
+          }
+          savePrefs();
+          syncSettingsUI();
+          refreshAll();
+        });
+
+        select.addEventListener('change', (e) => {
+          const chosen = CITY_PRESETS.find((c) => c.id === e.target.value);
+          if (!chosen) return;
+          state.city = chosen;
+          state.useGPS = false;
+          savePrefs();
+          syncSettingsUI();
+          refreshAll();
+        });
+
+        document.getElementById('apply-keyword-btn').addEventListener('click', () => {
+          const input = document.getElementById('custom-keyword-input');
+          state.keywordFilter = Security.sanitizeTextInput(input.value, 20);
+          input.value = state.keywordFilter;
+          savePrefs();
+          renderNews();
+          showToast(state.keywordFilter ? `#${state.keywordFilter} 필터 적용됨` : '키워드 필터가 해제되었습니다');
+        });
+
+        document.getElementById('reset-settings-btn').addEventListener('click', () => {
+          try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+          state.city = CITY_PRESETS[0];
+          state.useGPS = false;
+          state.darkMode = false;
+          state.categoryId = 'top';
+          state.keywordFilter = '';
+          applyTheme();
+          syncSettingsUI();
+          renderCategoryChips();
+          refreshAll();
+          showToast('설정이 초기화되었습니다.');
+        });
+      }
+
+      // Boot
+      setupPWAMetadata();
+      loadPrefs();
+      applyTheme();
+      renderHeader();
+      renderCategoryChips();
+      initControls();
+      if (window.lucide) window.lucide.createIcons();
+      refreshAll();
+    })();
+  </script>
+</body>
+</html>
